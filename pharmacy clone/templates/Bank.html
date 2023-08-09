@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* General styles */
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 3cm;
+        }
+
+        h1 {
+            color: #0066cc;
+            text-align: center;
+            transition: .5s;
+            border-radius: 1cm;
+        }
+        h1:hover {
+            background: #5658c4;
+            color: white;
+            padding: 0.5cm;
+        }
+
+        /* Navbar styles */
+        .navbar {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px;
+            text-align: right;
+        }
+
+        .navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar li {
+            display: inline;
+            margin-left: 20px;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 1000px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Input styles */
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        button {
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #0066cc;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Table styles */
+        .itemTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .itemTable th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+        #removeForm td{
+            width:40%;
+        }
+
+        .itemTable th {
+            background-color: #0066cc;
+            color: white;
+        }
+
+        .itemTable tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        /* Styling for debit and credit rows */
+        .debit-row {
+            background-color: rgba(255, 0, 0, 0.2);
+        }
+
+        .credit-row {
+            background-color: rgba(0, 128, 0, 0.1);
+        }
+
+        /* Navbar styles */
+        .navbar {
+            background-color: #44aadd;
+            color: white;
+            padding: 25px 20px;
+        }
+
+        .navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .navbar li {
+            margin: 0 15px;
+        }
+
+        .navbar li a {
+            text-decoration: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar li a:hover {
+            background-color: #56c483;
+        }
+       
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <ul>
+            <li><a href="/order">ORDER</a></li>
+            <li><a href="/products">MANAGEMENT</a></li>
+            <li><a href="/store">STORE</a></li>
+            <li><a href="/accounts">ACCOUNT</a></li>
+            <li> <a style="background-color: #56c483;" href="/bank">FINANCE</a> </li>
+            <li><a href="/sign_in">LOGOUT</a></li>
+        </ul>
+    </div>
+    <div class="container">
+        
+        <table class="itemTable" >
+            <tr>
+                <th>TRANSACTION ID</th>
+                <th>DATE</th>
+                <th  >DEBIT</th>
+                <th  >CREDIT</th>
+                <th>DEPOSIT</th>
+                <th>BALANCE</th>
+            </tr>
+            {%for bank_transaction in bank_data%}
+            <tr class="debit-row">
+                <td>{{bank_transaction[0]}}.</td>
+                <td>{{bank_transaction[7]}}</td>
+                <td  > {{bank_transaction[2]}}</td>
+                <td  > {{bank_transaction[4]}}</td>
+                <td>{{bank_transaction[6]}}</td>
+                <td><B>Ksh {{bank_transaction[5]}}</B></td>
+            </tr>
+            {%endfor%}
+            
+          
+            
+        </table><button id="nextButton" >more</button>
+
+            <!-- Form for removing money -->
+            <form method="post"  id="removeForm">
+                <h2 style="color: rgb(188, 27, 5);" >Remove Money</h2>
+                <table>
+                
+                <tr>
+                <td><label for="product"><input required type="radio" name="commodity_type" id="product">PRODUCT</label>
+                <label for="service"><input required type="radio" name="commodity_type" id="service">SERVICE</label></td>
+                </tr>
+                <tr>
+                <td> <label for="commodity_name">COMMODITY NAME : </label> </td><td> <input type="text" name="commodity_name" id="commodity_name" required></td>
+                </tr>
+                <tr>
+                    <td> <label for="description">DESCRIPTION</label> </td>
+                    <td> <input type="text" value=" " name="description" id="description"> </td>
+                </tr>
+                <tr> 
+                    <td> <label for="provider">PROVIDER</label> </td>
+                    <td> <input required type="text" name="provider" id="provider"> </td>
+                </tr>
+                <tr>
+                    <td> <label for="Quantity"> QUANTITY(Litres,Kg,Amount) </label> </td>
+                    <td> <input oninput="sum_()" required type="number" name="quantity" id="quantity"> </td>
+                </tr>
+                <tr>
+                    <td> <label for="unit_price">UNIT PRICE</label> </td>
+                    <td><input  oninput="sum_()" required type="number" name="unit_price" id="unit_price"></td>
+                </tr>
+                <tr>
+                    <td><label for="transaction_cost">TRANSACTION COST</label></td>
+                    <td> <input oninput="sum_()"  value="0" type="number" id="transaction_cost" name="transaction_cost" > </td>
+                </tr>
+                <tr>
+                    <td><label for="transport_cost">TRANSPORT COST</label></td>
+                    <td><input oninput="sum_()"  value="0" type="number" name="transport_cost" id="transport_cost"></td>
+                </tr>
+                
+                </table>
+                <h2> <span>Available : {{available}}</span> <center> Ksh <span id="result" >0.00</span></center> </h2>
+                <button  style="background:rgb(188, 27, 5);" name="submit" value="remove"  type="submit">Remove</button>
+            </form>
+        
+            <!-- Form for depositing money -->
+            <form method="post" id="depositForm">
+                <h2 style="color:rgb(9, 255, 0);" >Deposit Money</h2>
+                <table>
+                    <tr>
+                        <td> <label for="Amount_to_Deposit">AMOUNT TO DEPOSIT </label> </td>
+                        <td><input type="number" required placeholder="Ksh : " name="amount_to_deposit" id="Amount_to_Deposit"></td>
+                    </tr>
+                </table>
+                <button   style="background:rgb(9, 255, 0);" value="deposit" name="submit" type="submit">Deposit</button>
+            </form>
+        </div>
+        
+    </div>
+</body>
+
+<script>
+    var q=  document.getElementById('quantity');
+    var p=  document.getElementById('unit_price');
+    var t1= document.getElementById('transaction_cost');
+    var t2= document.getElementById('transport_cost');
+    var result=document.getElementById('result');
+    function sum_(){
+        m=Number(q.value)*Number(p.value);
+        sL=m+Number(t1.value)+Number(t2.value);
+        result.innerHTML=sL.toFixed(2);
+    }
+     // Get all rows from the table
+     const tableRows = document.querySelectorAll(".itemTable tr");
+
+// Number of rows to display at a time
+const rowsPerPage = 10;
+let currentPage = 1;
+
+// Function to display rows based on the current page
+function displayRows() {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+
+    for (let i = 1; i < tableRows.length; i++) {
+        if (i >= startIndex && i < endIndex) {
+            tableRows[i].style.display = "table-row";
+        } else {
+            tableRows[i].style.display = "none";
+        }
+    }
+}
+
+// Display the initial set of rows
+displayRows();
+
+// Function to go to the next page
+function nextPage() {
+    currentPage++;
+    if (currentPage > Math.ceil(tableRows.length / rowsPerPage)) {
+        currentPage = 1; // Loop back to the first page
+    }
+    displayRows();
+}
+
+// Add an event listener to the "Next" button
+const nextButton = document.getElementById("nextButton");
+nextButton.addEventListener("click", nextPage);
+</script>
+</html>

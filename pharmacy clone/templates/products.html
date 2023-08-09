@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pharmaceutical Website</title>
+    <style>
+        /* General styles */
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 3cm;
+        }
+
+        h1 {
+            color: #0066cc;
+            text-align: center;
+            transition: .5s;
+            border-radius: 1cm;
+        }
+        h1:hover{
+            background:#5658c4;
+            
+            color:white;
+            padding:0.5cm;
+        }
+
+
+        /* Navbar styles */
+        .navbar {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px;
+            text-align: right;
+        }
+
+        .navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar li {
+            display: inline;
+            margin-left: 20px;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 1000px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Input styles */
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        button {
+            padding: 10px;
+            width: 70%;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #0066cc;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Table styles */
+        .itemTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .itemTable th,
+        .itemTable td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .itemTable2 th{
+            background-color: #0066cc;
+            color: white;
+        }
+
+        .itemTable tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        label:hover{
+            cursor: pointer;
+            background:#56c483;
+        }
+        /* Navbar styles */
+        .navbar {
+            background-color: #44aadd;
+            color: white;
+            padding:25px 20px;
+        }
+
+        .navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .navbar li {
+            margin: 0 15px;
+        }
+
+        .navbar li a {
+            text-decoration: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar li a:hover {
+            background-color: #56c483;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <ul>
+            <li><a href="/order">ORDER</a></li>
+            <li><a style="background-color: #56c483;"  href="/products">MANAGEMENT</a></li>
+            <li><a href="/store">STORE</a></li>
+            <li><a href="/accounts">ACCOUNT</a></li>
+            <li><a href="/bank">FINANCE</a></li>
+            <li><a href="/sign_in">LOGOUT</a></li>
+        </ul>
+    </div>
+    <input style="display:none;" onclick="appear('restock__','cont1','cont2','cont3','cont4','cont5'  ,'cont6','cont7','cont8')" type="checkbox" name="ref" id="restock__">
+    <input style="display:none;" onclick="appear('addNewProduct','cont2','cont3','cont5','cont4','cont1' ,'cont6','cont7','cont8')" type="checkbox" name="ref" id="addNewProduct">
+    <input style="display:none;" onclick="appear('DELETE_PRODUCT','cont3','cont1','cont5','cont2','cont4','cont6','cont7','cont8')" type="checkbox" name="ref" id="DELETE_PRODUCT">
+    <input style="display:none;" onclick="appear('deletestock','cont4','cont1','cont5','cont2','cont3','cont6','cont7','cont8')" type="checkbox" name="ref" id="deletestock">
+    <input style="display:none;" onclick="appear('newSupplier','cont5','cont1','cont2','cont3','cont4','cont6','cont7','cont8')" type="checkbox" name="ref" id="newSupplier">
+    <input style="display:none;" onclick="appear('delete_supplier','cont6','cont1','cont2','cont3','cont4','cont5','cont7','cont8')" type="checkbox" name="ref" id="delete_supplier">
+    <input style="display:none;" onclick="appear('NewMember','cont7','cont1','cont2','cont3','cont4','cont6','cont5','cont8')" type="checkbox" name="ref" id="NewMember">
+    <input style="display:none;" onclick="appear('delete_Member','cont8','cont1','cont2','cont3','cont4','cont5','cont6','cont7')" type="checkbox" name="ref" id="delete_Member">
+
+<!-- Cont 1 -->
+    <div  class="container"><label for="restock__">
+        <h1>RE-STOCK :</h1></label>
+        <form id="cont1" style="display:none;" method="post">
+            <p style="color:red" >{{msg}}</p>
+            <input placeholder="ENTER PRODUCT DETAILS" type="text" name="searchBar" id="searchBar1">
+            <table class="itemTable" id="itemTable">
+                <tr>
+                    <th>Check</th>
+                    <th>PRODUCT ID</th>
+                    <th>PRODUCT NAME</th>
+                    <th>CATEGORY</th>
+                    <th>SOURCE</th>
+                    <th>QUANTITY</th>
+                    <th>UNIT PRICE</th>
+                </tr>
+                {%for product in products_active%}
+                <tr>
+                    <td><input onclick="sp_autoupdate('product{{product[0]}}','{{product[3]}}')" required type="radio" name="productId" value="{{product[0]}}" id="product{{product[0]}}"></td>
+                    <td> <label for="product{{product[0]}}"> {{product[0]}}</label></td>
+                    <td> <label for="product{{product[0]}}"> {{product[1]}}</label></td>
+                    <td> <label for="product{{product[0]}}"> {{product[5]}}</label></td>
+                    <td> <label for="product{{product[0]}}"> {{product[6]}}</label></td>
+                    <td> <label for="product{{product[0]}}"> {{product[4]}}</label></td>
+                    <td> <label for="product{{product[0]}}">Ksh {{product[3]}}</label></td>
+                </tr>
+                {%endfor%}
+
+            </table>
+            <table>
+            <tr><td><label for="">Quantity:</label>     </td><td style="width:100%;" ><input required  type="number" name="Quantity" id="Quantity"><br></td></tr>
+            <tr><td><label for="">Unit Buying Price: </label></td><td style="width:100%;" ><input required  name="productBP" value="0" type="number"><br></td></tr>
+            <tr><td><label for="">Unit Selling Price: </label></td><td style="width:100%;" ><input required  name="productSP" id="sellingPrice" type="number"><br></td></tr>
+            
+            
+            </table><br><br>
+            <button value="restock" name="submit">RESTOCK</button>
+        </form>
+    </div>
+    <!-- Cont 2 -->
+    <div  class="container"><label for="addNewProduct">
+        <h1>ADD A NEW PRODUCT</h1></label>
+        <form id="cont2" style="display:none;" method="post">
+
+            <table>
+                
+                <tr><td><label for="">PRODUCT NAME: </label></td><td style="width:100%;" ><input required  name="productName" type="text"><br></td></tr>
+                <tr><td><label for="">CATEGORY:</label>     </td><td style="width:100%;" ><input required  type="text" name="category" ><br></td></tr>
+                <tr><td><label for="">SOURCE:</label>     </td><td style="width:100%;" ><input required  type="text" name="source" ><br></td></tr>
+                <tr><td><label for="">To-sell price : </label></td><td style="width:100%;" ><input required  type="number" name="productCost"><br></td></tr>
+            </table>
+
+            <button name="submit" value="addNewProduct" >ADD NEW PRODUCT</button>
+        </form>
+        
+    </div>
+     <!-- Cont 5-->
+     <!-- <div class="container">
+        <label for="newSupplier"><h1>ADD NEW SUPPLIER</h1></label>
+        <form id="cont5" style="display:none;" method="post">
+                <table>
+                    <tr><td><label for="">SUPPLIER NAME:</label>     </td><td style="width:100%;" ><input required  type="text" name="SupplierName" ><br></td></tr>
+                    <tr><td><label for="">CONTACT: </label></td><td style="width:100%;" ><input required  name="contact" type="text"><br></td></tr>
+                    <tr><td><label for="">LOCATION:</label></td><td style="width:100%;" ><input required  name="location" type="text"><br></td></tr>
+
+                </table>
+    
+                <button name="submit" value="AddNewSupplier" >NEW SUPPLIER</button>
+        
+        </form>
+    </div> -->
+    {%if managerCheck=='Yes'%}
+    <!-- Cont 3-->
+    <div class="container">
+        <label for="DELETE_PRODUCT"><h1>DELETE PRODUCT</h1></label>
+        <form style="display:none;" id="cont3" method="post">
+            <input placeholder="ENTER PRODUCT DETAILS" type="text" name="searchBar" id="searchBar3">
+            <table class="itemTable" id="itemTable3">
+                <tr>
+                    <th>Check</th>
+                    <th>PRODUCT ID</th>
+                    <th>PRODUCT NAME</th>
+                    <th>CATEGORY</th>
+                    <th>SOURCE</th>
+                    <th>COST</th>
+                    <th>QUANTITY</th>
+                    <th>ACTIVE</th>
+                </tr>
+                {%for product in products%}
+                <tr>
+                    <td><input required type="radio" value="{{product[0]}}" name="productId" id="delete{{product[0]}}"></td>
+                    <td> <label for="delete{{product[0]}}">     {{product[0]}}</label></td>
+                    <td> <label for="delete{{product[0]}}">     {{product[1]}}</label></td>
+                    <td> <label for="delete{{product[0]}}">     {{product[5]}}</label></td>
+                    <td> <label for="delete{{product[0]}}">     {{product[6]}}</label></td>
+                    <td> <label for="delete{{product[0]}}">     {{product[3]}}</label></td>
+                    <td> <label for="delete{{product[0]}}"> Ksh {{product[4]}}</label></td>
+                    <td> <label for="delete{{product[0]}}">     {{product[2]}}</label></td>
+                    
+                </tr>
+                {%endfor%}
+            </table>
+            <button name="submit" style="background:rgb(150, 46, 46);" value="delete_product" >DELETE PRODUCT</button>
+            <button name="submit" style="background:rgb(10, 160, 53);" value="activate_product" >ACTIVATE PRODUCT</button>
+        </form>
+    </div>
+
+<!--Cont 4-->
+
+<div class="container">
+    <label for="deletestock"><h1>DELETE STOCK</h1></label>
+    <form style="display:none;" id="cont4" method="post">
+        <input placeholder="ENTER PRODUCT/STOCK INFO" type="text" name="searchBar" id="searchBar2">
+        <table class="itemTable" id="itemTable2">
+            <tr>
+                <th>Check</th>
+                <th>Stock Date</th>
+                <th>Stock ID</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>source</th>
+                <th>Staff ID</th>
+                <th>Buying Price</th>
+                <th>Quantity</th>
+                <th>IN-STOCK</th>
+                
+            </tr>
+            {%for stock in stockdataDesc %}
+           <tr>
+                <td><input required type="radio" name="StockId" value="{{stock[0]}}" id="DelStock{{stock[0]}}"></td>
+                <td> <label for="DelStock{{stock[0]}}">{{stock[2]}} </label></td>
+                <td> <label for="DelStock{{stock[0]}}">{{stock[0]}} </label></td>
+                {%for product in products%}
+                    {%if product[0]==stock[1]%}
+                <td> <label for="DelStock{{stock[0]}}">{{product[1]}}</label></td>
+                <td> <label for="DelStock{{stock[0]}}">{{product[5]}} </label></td>
+                <td> <label for="DelStock{{stock[0]}}">{{product[6]}} </label></td>
+                <td> <label for="DelStock{{stock[0]}}">{{product[4]}} </label></td>
+                <td> <label for="DelStock{{stock[0]}}">{{stock[3]}} </label></td>
+                <td> <label for="DelStock{{stock[0]}}"> {{stock[4]}}</label></td>
+                <td> <label for="DelStock{{stock[0]}}">Ksh {{stock[5]}} </label></td>
+                {%endif%}
+                {%endfor%}
+                
+            </tr>
+            {%endfor%}
+        </table>
+        <button name="submit" style="background:rgb(150, 46, 46);"  value="delete_stock" >DELETE STOCK</button>
+    </form>
+</div>
+    <!-- cont6 DELETE SUPPLIER -->
+
+    <!-- cont7 ADD STAFF MEMBER -->
+    <div class="container">
+        <label for="NewMember"><h1>ADD NEW MEMBER</h1></label>
+        <form id="cont7" style="display:none;" method="post">
+                <table>
+                    <tr><td><label for="">FIRST AND LAST NAMES:</label>     </td><td style="width:100%;" ><input required  type="text" name="FullName" ><br></td></tr>
+                    <tr><td><label for="">ID NUMBER: </label></td><td style="width:100%;" ><input required  name="IdNumber" type="number"><br></td></tr>
+                    <tr><td><label for="">CONTACT:</label></td><td style="width:100%;" ><input required  name="contact" type="text"><br></td></tr>
+                    <tr><td><label for="">TITLE:</label></td><td style="width:100%;" ><input required  name="title" type="text"><br></td></tr>
+                    
+
+                </table>
+    
+                <button name="submit" value="NewMember" >NEW MEMBER</button>
+        
+        </form>
+    </div>
+    <!-- cont8 DELETE STAFF MEMBER -->
+    <div class="container">
+        <label for="delete_Member"><h1>DELETE MEMBER</h1></label>
+        <form style="display:none;" id="cont8" method="post">
+            <input placeholder="ENTER MEMBER NAME" type="text" name="searchBar" id="searchBarMember">
+            <table class="itemTable" id="itemTableMember">
+                <tr>
+                    <th>Check</th>
+                    <th>Member ID</th>
+                    <th>Member Names</th>
+                    <th>Title</th>
+                    <th>Contact</th>
+                    <th>Employment Date</th>
+                    <th>Status</th>
+                </tr>
+                {%for member in users %}
+                <tr>
+                    <td><input required type="radio" name="memberID" value="{{member[0]}}" id="DelMember{{member[0]}}"></td>
+                    <td> <label for="DelMember{{member[0]}}">{{member[0]}} </label></td>
+                    <td> <label for="DelMember{{member[0]}}">{{member[1]}} </label></td>
+                    <td> <label for="DelMember{{member[0]}}">{{member[2]}} </label></td>
+                    <td> <label for="DelMember{{member[0]}}">{{member[3]}} </label></td>
+                    <td> <label for="DelMember{{member[0]}}">{{member[4]}} </label></td>
+                    <td> <label for="DelMember{{member[0]}}">{{member[5]}} </label></td>
+
+                    </tr>
+                {%endfor%}
+            </table>
+            <button name="submit" style="background:rgb(150, 46, 46);"  value="delete_Member" >DEACTIVATE</button>
+            <button name="submit" style="background:rgb(36, 142, 60);"  value="ACTIVATE" >ACTIVATE</button>
+        </form>
+    </div>
+    {%endif%}
+    <script>
+        //Selling Price autoUpdate
+        function sp_autoupdate(drugid,drugcost){
+            var drugidvar=document.getElementById(drugid);
+            var sp=document.getElementById('sellingPrice');
+            if (drugidvar.checked==true){
+                sp.value=drugcost;
+            };
+        };
+        
+        //Search Engine Code
+        const searchInputMember = document.getElementById('searchBarMember');
+        const itemTableM = document.getElementById('itemTableMember');
+        const rowsM = itemTableM.getElementsByTagName('tr');
+
+        searchInputMember.addEventListener('input', filterItemsM);
+
+        function filterItemsM() {
+            const searchTerm = searchInputMember.value.toLowerCase();
+            for (let i = 1; i < rowsM.length; i++) { // Start the loop from index 1 to skip the header row
+                const row = rowsM[i];
+                const cells = row.getElementsByTagName('td');
+                let matchFound = false;
+
+                for (const cell of cells) {
+                    const cellValue = cell.textContent.toLowerCase();
+                    if (cellValue.includes(searchTerm)) {
+                        matchFound = true;
+                        break;
+                    }
+                }
+
+                if (matchFound) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        };
+        //Search Engine Code2
+        const searchInput2 = document.getElementById('searchBar2');
+        const itemTable2 = document.getElementById('itemTable2');
+        const rows2 = itemTable2.getElementsByTagName('tr');
+
+        searchInput2.addEventListener('input', filterItems2);
+
+        function filterItems2() {
+            const searchTerm = searchInput2.value.toLowerCase();
+            for (let i = 1; i < rows2.length; i++) { // Start the loop from index 1 to skip the header row
+                const row = rows2[i];
+                const cells = row.getElementsByTagName('td');
+                let matchFound = false;
+
+                for (const cell of cells) {
+                    const cellValue = cell.textContent.toLowerCase();
+                    if (cellValue.includes(searchTerm)) {
+                        matchFound = true;
+                        break;
+                    }
+                }
+
+                if (matchFound) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        };
+        //Search Engine Code
+        const searchInput = document.getElementById('searchBar1');
+        const itemTable = document.getElementById('itemTable');
+        const rows = itemTable.getElementsByTagName('tr');
+
+        searchInput.addEventListener('input', filterItems);
+
+        function filterItems() {
+            const searchTerm = searchInput.value.toLowerCase();
+            for (let i = 1; i < rows.length; i++) { // Start the loop from index 1 to skip the header row
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let matchFound = false;
+
+                for (const cell of cells) {
+                    const cellValue = cell.textContent.toLowerCase();
+                    if (cellValue.includes(searchTerm)) {
+                        matchFound = true;
+                        break;
+                    }
+                }
+
+                if (matchFound) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        };
+        
+        //Search Engine Code3
+        const searchInput3 = document.getElementById('searchBar3');
+        const itemTable3 = document.getElementById('itemTable3');
+        const rows3 = itemTable3.getElementsByTagName('tr');
+
+        searchInput3.addEventListener('input', filterItems3);
+
+        function filterItems3() {
+            const searchTerm = searchInput3.value.toLowerCase();
+            for (let i = 1; i < rows3.length; i++) { // Start the loop from index 1 to skip the header row
+                const row = rows3[i];
+                const cells = row.getElementsByTagName('td');
+                let matchFound = false;
+
+                for (const cell of cells) {
+                    const cellValue = cell.textContent.toLowerCase();
+                    if (cellValue.includes(searchTerm)) {
+                        matchFound = true;
+                        break;
+                    }
+                }
+
+                if (matchFound) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        };
+        //Appear containers
+        function appear(radio1,cont1,cont2,cont3,cont4,cont5,cont6,cont7){
+            check1=document.getElementById(radio1);
+            if (check1.checked==true){
+                cont1=document.getElementById(cont1);
+                cont1.style.display='block';
+                cont2=document.getElementById(cont2);
+                cont2.style.display='none';
+                cont3=document.getElementById(cont3);
+                cont3.style.display='none';
+                cont4=document.getElementById(cont4);
+                cont4.style.display='none';
+                cont5=document.getElementById(cont5);
+                cont5.style.display='none';
+                cont6=document.getElementById(cont6);
+                cont6.style.display='none';
+                cont7=document.getElementById(cont7);
+                cont7.style.display='none';
+                cont8=document.getElementById(cont8);
+                cont8.style.display='none';
+                
+            }
+            else{
+                cont1=document.getElementById(cont1);
+                cont1.style.display='none';
+                cont2=document.getElementById(cont2);
+                cont2.style.display='none';
+                cont3=document.getElementById(cont3);
+                cont3.style.display='none';
+                cont4=document.getElementById(cont4);
+                cont4.style.display='none';
+                cont5=document.getElementById(cont5);
+                cont5.style.display='none';
+                cont6=document.getElementById(cont6);
+                cont6.style.display='none';
+                cont7=document.getElementById(cont7);
+                cont7.style.display='none';
+                cont8=document.getElementById(cont8);
+                cont8.style.display='none';
+            }
+        };
+        
+    </script>
+</body>
+</html>

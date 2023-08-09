@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Account Home Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background-color: #44aadd;
+            color: white;
+            padding: 10px 20px;
+        }
+        .navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .navbar li {
+            margin: 0 15px;
+        }
+        .navbar li a {
+            text-decoration: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .navbar li a:hover {
+            background-color: #56c483;
+        }
+        #container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #f1f1f1;
+        }
+        #profile-image {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin-right: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        #user-details {
+            flex-grow: 1;
+            font-size: 16px;
+            color: #333;
+        }
+        #user-details h2 {
+            margin-top: 0;
+            font-size: 24px;
+            color: #444;
+        }
+        #user-details ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        #user-details li {
+            margin-bottom: 10px;
+        }
+        .user-details-right {
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+        }
+        .user-details-right li {
+            color: #777;
+        }
+        .user-details-right .label {
+            font-weight: bold;
+        }
+        .center {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #56c483;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        .cta-button:hover {
+            background-color: #44aadd;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <ul>
+            <li><a href="/order">ORDER</a></li>
+            <li><a href="/products">MANAGEMENT</a></li>
+            <li><a href="/store">STORE</a></li>
+            <li><a style="background-color: #56c483;" href="/accounts">ACCOUNT</a></li>
+            <li><a href="/bank">FINANCE</a></li>
+            <li><a href="/sign_in">LOGOUT</a></li>
+        </ul>
+    </div>
+    <div id="container">
+        <img id="profile-image" src="https://via.placeholder.com/200" alt="Profile Image">
+        
+        <div id="user-details">
+            <h2>Full Name: {{user[1]}}</h2>
+            <h2>Title: {{user[2]}}</h2>
+            <ul>
+                <li>ID Number: {{user[0]}}</li>
+                <li>Contact: {{user[3]}}</li>
+                <li>Employment Date: {{user[4]}}</li>
+                <div class="user-details-right">
+                    <li class="label">Status: {{user[5]}}</li>
+                    <li><a class="cta-button" href="/products">View Store</a></li>
+                    <li>Total Products Sold: {{Products_Sold}}</li>
+                    <li>Total Products Re-stocked: {{RestocksMade}}</li>
+                    <li>Total Products Deleted: {{Products_deleted}}</li>
+                    <li>Total Products Added: {{Products_added}}</li>
+                    <li>Total Stocks Deleted: {{stocks_Deleted}}</li>
+                    <li>Total Suppliers Added: {{Suppliers_added}}</li>
+                    <li>Total Suppliers Deleted: {{Suppliers_deleted}}</li>
+                    <li>Total Members Added: {{members_added}}</li>
+                    <li>Total Members Deleted: {{members_deleted}}</li>
+                </div>
+            </ul>
+        </div>
+        
+    </div>
+    <h1>CASHIERS</h1>
+    {%if user[2] == "MANAGER" %}
+    <div class="cashiers">
+        <ul>
+            {%for cashier in cashiers%}
+            <li><a href="/{{cashier[0]}}">{{cashier[1]}}</a></li>
+            {%endfor%}
+        </ul>
+    </div>
+    {%endif%}
+    
+</body>
+</html>

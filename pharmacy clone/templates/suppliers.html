@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pharmaceutical Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        .casual {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #orderlist {
+            margin-top: 20px;
+            background: #ffffff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        #searchBar {
+            padding: 10px;
+            width: 100%;
+            margin: 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 1cm;
+        }
+
+        .itemTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .itemTable th,
+        .itemTable td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .itemTable th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .itemTable tr:nth-child(even) {
+            background-color: #e4e4e4;
+        }
+        .itemTable label{
+            cursor: pointer;
+        }
+        .itemTable tr:hover{
+            background-color:#ddd!important ;
+        }
+
+        .minus,
+        .plus {
+            cursor: pointer;
+        }
+
+        .receipt {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .receipt input[type="number"] {
+            padding: 5px;
+            width: 100px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .receipt button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .receipt button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Button styles */
+        label[for="startOrder"],
+        label[for="cancelOrder"],
+        #OrderButton {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        label[for="startOrder"]:hover,
+        label[for="cancelOrder"]:hover,
+        #OrderButton:hover {
+            background-color: #0056b3;
+        }
+
+        label[for="startOrder"],
+        #OrderButton {
+            margin: 5px;
+        }
+        .pastTransactions {
+            display: block;
+            margin: 50vh auto;
+            max-width: 800px;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .pastTransactions h2 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        .pastTransactions table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .pastTransactions th,
+        .pastTransactions td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .pastTransactions th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .pastTransactions tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .pastTransactions li {
+            margin-bottom: 5px;
+        }
+        ul li{
+            list-style-type: none;
+        }
+        /* Navbar styles */
+        .navbar {
+            background-color: #44aadd;
+            color: white;
+            padding:25px 20px;
+            margin:0 0 0.5cm 0;
+        }
+
+        .navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .navbar li {
+            margin: 0 15px;
+        }
+
+        .navbar li a {
+            text-decoration: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar li a:hover {
+            background-color: #56c483;
+        }
+        body table{
+            margin:1cm;
+        }
+        #Labeltable1,#Labeltable2 {
+            padding: 8px 16px;
+            margin:1cm;
+            border: 1px solid #44aadd;
+            background: #44aadd;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+        }
+
+        /* Hover effect for the label */
+        #Labeltable1:hover,#Labeltable2:hover {
+            background-color: #56c483;
+            border-color: #56c483;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="navbar">
+        <ul>
+            <li><a href="/order">ORDER</a></li>
+            <li><a href="/products">MANAGE</a></li>
+            <li><a href="/supplier">STORE</a></li>
+            <li><a href="/accounts">ACCOUNT</a></li>
+            <li><a href="/bank">FINANCE</a></li>
+            <li><a href="/sign_in">LOGOUT</a></li>
+        </ul>
+    </div>
+
+    <input style="display:none;" type="radio" name="labels" id="table1" onclick="toggleTable('itemTable','Labeltable1', 'suppliersTable','Labeltable2')">
+    <input style="display:none;" type="radio" name="labels" id="table2" onclick="toggleTable('suppliersTable','Labeltable2', 'itemTable','Labeltable1')">
+    
+    <label style="background:#56c483;" class="LabelTable" for="table1" id="Labeltable1" >Medications Table</label>
+    <label class="LabelTable" for="table2" id="Labeltable2" >Suppliers Table</label>
+
+
+<form  id="cont4" method="post">
+    <div class="container">
+    <input placeholder="search Drug/supplier info" type="text" name="searchBar" id="searchBar">
+    <table class="itemTable" id="itemTable">
+        <tr>
+            <th onclick="sortTable( 'itemTable', 0)" >Check</th>
+            <th onclick="sortTable( 'itemTable', 1)" >Stock ID</th>
+            <th onclick="sortTable( 'itemTable', 2)" >Drug Name</th>
+            <th onclick="sortTable( 'itemTable', 3)" >Brand</th>
+            <th onclick="sortTable( 'itemTable', 4)" >Category</th>
+            <th onclick="sortTable( 'itemTable', 5)" >Stock Date</th>
+            <th onclick="sortTable( 'itemTable', 6)" >Expiry Date</th>
+            <th onclick="sortTable( 'itemTable', 7)" >Quantity</th>
+            <th onclick="sortTable( 'itemTable', 8)" >Staff ID</th>
+            <th onclick="sortTable( 'itemTable', 9)" >Buying Price</th>
+        </tr>
+        {%for stock in stockdataDesc %}
+        <!-- Make Red if expired -->
+        {%if stock[4] <= expiry_range %}
+            {%if stock[4] > today %}
+                <tr style='color:orange'>
+            {%else%}
+            <tr style='color:red'>        
+            {%endif%}
+        {%elif stock[8] < 1 %}
+        <tr style="color:rgb(255, 0, 166)" >
+        {%else%}
+        <tr>
+        {%endif%}
+            <td><input required type="radio" name="StockId" value="{{stock[0]}}" id="DelStock{{stock[0]}}"></td>
+            <td> <label for="DelStock{{stock[0]}}">{{stock[0]}} </label></td>
+            {%for drug in drug_details%}
+                {%if drug[0]==stock[1]%}
+            <td> <label for="DelStock{{stock[0]}}">{{drug[1]}}</label></td>
+            <td> <label for="DelStock{{stock[0]}}">{{drug[3]}} </label></td>
+            <td> <label for="DelStock{{stock[0]}}">{{drug[2]}} </label></td>
+            {%endif%}
+            {%endfor%}
+            <td> <label for="DelStock{{stock[0]}}">{{stock[3]}} </label></td>
+            <td> <label for="DelStock{{stock[0]}}"> {{stock[4]}}</label></td>
+            <td> <label for="DelStock{{stock[0]}}">{{stock[8]}} </label></td>
+            <td> <label for="DelStock{{stock[0]}}"> {{stock[6]}} </label></td>
+            <td> <label for="DelStock{{stock[0]}}">Ksh {{stock[7]}}</label></td>
+        </tr>
+        {%endfor%}
+    </table>
+
+    <table style="display:none;" class="itemTable" id="suppliersTable">
+        <tr>
+            <th onclick="sortTable('suppliersTable', 0)">Check</th>
+            <th onclick="sortTable('suppliersTable', 1)">Supplier ID</th>
+            <th onclick="sortTable('suppliersTable', 2)">Supplier Name</th>
+            <th onclick="sortTable('suppliersTable', 3)">Contact</th>
+            <th onclick="sortTable('suppliersTable', 4)">Location</th>
+        </tr>
+        {%for supplier in supplier_data%}
+        <tr>
+            <td> <input type="radio" name="suppliers" id="Sup{{supplier[0]}}"> </td>
+            <td>{{supplier[0]}}</td>
+            <td>{{supplier[1]}}</td>
+            <td>{{supplier[2]}}</td>
+            <td>{{supplier[3]}}</td>
+        </tr>
+        {%endfor%}
+        
+        
+        <!-- ... (other suppliers data rows) ... -->
+    </table>
+
+    </div>
+</form>
+
+
+
+
+<script>
+//funcorder
+function toggleTable(showTableId,ColorLabelId, hideTableId,DiscolorLabelId) {
+    const showTable = document.getElementById(showTableId);
+    const hideTable = document.getElementById(hideTableId);
+    const ColorLabel = document.getElementById(ColorLabelId);
+    const DiscolorLabel = document.getElementById(DiscolorLabelId);
+    
+    if (showTable && hideTable) {
+        showTable.style.display = 'table';
+        hideTable.style.display = 'none';
+        ColorLabel.style.background='#56c483';
+        DiscolorLabel.style.background='#44aadd';
+    }
+}
+//end of func order
+
+const sortOrders = {};
+
+function sortTable(tableId, columnIndex) {
+    const table = document.getElementById(tableId);
+    const rows = Array.from(table.rows);
+
+    const dataRows = rows.slice(1);
+
+    if (!sortOrders[tableId]) {
+        sortOrders[tableId] = Array(dataRows[0].cells.length).fill(0);
+    }
+
+    sortOrders[tableId][columnIndex] = 1 - sortOrders[tableId][columnIndex];
+
+    dataRows.sort((a, b) => {
+        const aValue = a.cells[columnIndex].textContent;
+        const bValue = b.cells[columnIndex].textContent;
+
+        let comparison;
+
+        if (isNaN(aValue)) {
+            comparison = aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: 'base' });
+        } else {
+            comparison = parseFloat(aValue) - parseFloat(bValue);
+        }
+
+        if (sortOrders[tableId][columnIndex] === 1) {
+            comparison *= -1;
+        }
+
+        return comparison;
+    });
+
+    while (table.firstChild) {
+        table.removeChild(table.firstChild);
+    }
+
+    table.appendChild(rows[0]);
+
+    dataRows.forEach(row => table.appendChild(row));
+}
+
+    //Selling Price autoUpdate
+    function sp_autoupdate(drugid,drugcost){
+        var drugidvar=document.getElementById(drugid);
+        var sp=document.getElementById('sellingPrice');
+        if (drugidvar.checked==true){
+            sp.value=drugcost;
+        };
+    };
+    
+    //Search Engine Code
+    const searchInput = document.getElementById('searchBar');
+    const itemTable = document.getElementById('itemTable');
+    const rows = itemTable.getElementsByTagName('tr');
+
+    searchInput.addEventListener('input', filterItems);
+
+    function filterItems() {
+        const searchTerm = searchInput.value.toLowerCase();
+        for (let i = 1; i < rows.length; i++) { // Start the loop from index 1 to skip the header row
+            const row = rows[i];
+            const cells = row.getElementsByTagName('td');
+            let matchFound = false;
+
+            for (const cell of cells) {
+                const cellValue = cell.textContent.toLowerCase();
+                if (cellValue.includes(searchTerm)) {
+                    matchFound = true;
+                    break;
+                }
+            }
+
+            if (matchFound) {
+                row.style.display = 'table-row';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    };
+    //Suppliers Table
+    const supplierstable = document.getElementById('suppliersTable');
+    const rows2 = supplierstable.getElementsByTagName('tr');
+
+    searchInput.addEventListener('input', filterItems2);
+
+    function filterItems2() {
+        const searchTerm = searchInput.value.toLowerCase();
+        for (let i = 1; i < rows2.length; i++) { // Start the loop from index 1 to skip the header row
+            const row = rows2[i];
+            const cells = row.getElementsByTagName('td');
+            let matchFound = false;
+
+            for (const cell of cells) {
+                const cellValue = cell.textContent.toLowerCase();
+                if (cellValue.includes(searchTerm)) {
+                    matchFound = true;
+                    break;
+                }
+            }
+
+            if (matchFound) {
+                row.style.display = 'table-row';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    };
+    //Appear containers
+    function appear(radio1,cont1,cont2,cont3,cont4,cont5,cont6,cont7){
+        check1=document.getElementById(radio1);
+        if (check1.checked==true){
+            cont1=document.getElementById(cont1);
+            cont1.style.display='block';
+            cont2=document.getElementById(cont2);
+            cont2.style.display='none';
+            cont3=document.getElementById(cont3);
+            cont3.style.display='none';
+            cont4=document.getElementById(cont4);
+            cont4.style.display='none';
+            cont5=document.getElementById(cont5);
+            cont5.style.display='none';
+            cont6=document.getElementById(cont6);
+            cont6.style.display='none';
+            cont7=document.getElementById(cont7);
+            cont7.style.display='none';
+            cont8=document.getElementById(cont8);
+            cont8.style.display='none';
+            
+        }
+        else{
+            cont1=document.getElementById(cont1);
+            cont1.style.display='none';
+            cont2=document.getElementById(cont2);
+            cont2.style.display='none';
+            cont3=document.getElementById(cont3);
+            cont3.style.display='none';
+            cont4=document.getElementById(cont4);
+            cont4.style.display='none';
+            cont5=document.getElementById(cont5);
+            cont5.style.display='none';
+            cont6=document.getElementById(cont6);
+            cont6.style.display='none';
+            cont7=document.getElementById(cont7);
+            cont7.style.display='none';
+            cont8=document.getElementById(cont8);
+            cont8.style.display='none';
+        }
+    };
+</script>
+
+
+</body>
+</html>

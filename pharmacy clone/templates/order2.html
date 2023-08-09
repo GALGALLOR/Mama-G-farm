@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pharmaceutical Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        .casual {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #orderlist {
+            margin-top: 20px;
+            background: #ffffff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        #searchBar {
+            padding: 5px;
+            width: 100%;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+        }
+
+        #itemTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        #itemTable th,
+        #itemTable td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        #itemTable th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #itemTable tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .minus,
+        .plus {
+            cursor: pointer;
+        }
+
+        .receipt {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .receipt input[type="number"] {
+            padding: 5px;
+            width: 100px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .receipt button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .receipt button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Button styles */
+        label[for="startOrder"],
+        label[for="cancelOrder"],
+        label[for="PartialPayLabel"],
+        #OrderButton {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        label[for="startOrder"]:hover,
+        label[for="cancelOrder"]:hover,
+        label[for="PartialPayLabel"]:hover,
+        #OrderButton:hover {
+            background-color: #0056b3;
+        }
+
+        label[for="startOrder"],
+        #OrderButton {
+            margin: 5px;
+        }
+        .pastTransactions {
+            display: block;
+            margin: 50vh auto;
+            max-width: 800px;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .pastTransactions h2 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        .pastTransactions table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .pastTransactions th,
+        .pastTransactions td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .pastTransactions th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .pastTransactions tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .pastTransactions li {
+            margin-bottom: 5px;
+        }
+        ul li{
+            list-style-type: none;
+        }
+        /* Navbar styles */
+        .navbar {
+            background-color: #44aadd;
+            color: white;
+            padding:25px 20px;
+        }
+
+        .navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .navbar li {
+            margin: 0 15px;
+        }
+
+        .navbar li a {
+            text-decoration: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .navbar li a:hover {
+            background-color: #56c483;
+        }
+        /* Styling for the partial pay section */
+        .partial_pay {
+            background-color: #f1f1f1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .partial_pay h3 {
+            margin: 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .partial_pay label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .partial_pay input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 16px;
+        }
+        .partial_pay input[type="number"] {
+            width: 20%;
+            padding: 8px;
+            border: 1px solid #8c8181;
+            border-radius: 3px;
+            font-size: 16px;
+            margin:0 1cm 0 0;
+        }
+
+        .partial_pay button {
+            background-color: #44aadd;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .partial_pay button:hover {
+            background-color: #56c483;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <ul>
+            <li><a style="background-color: #56c483;"  href="/order">ORDER</a></li>
+            <li><a href="/products">MANAGEMENT</a></li>
+            <li><a href="/store">STORE</a></li>
+            <li><a href="/accounts">ACCOUNT</a></li>
+            <li><a href="/bank">FINANCE</a></li>
+            <li><a href="/sign_in">LOGOUT</a></li>
+        </ul>
+    </div>
+    <h1>Welcome {{user}}</h1>
+    <div class="casual">
+        <input onclick="funcOrder()" style="display:none;" type="checkbox" name="startOrder" id="startOrder">
+        <label for="startOrder" id="OrderButton">Start Order</label>
+    </div>
+    <form method="post" >
+    <div style="display:none;" id="orderlist">
+        <input autocomplete="off" type="text" placeholder="Search for product" name="searchBar" id="searchBar">
+        <table id="itemTable">
+            <tr>
+                <th>PRODUCT ID</th>
+                <th>PRODUCT NAME</th>
+                <th>CATEGORY</th>
+                <th>QUANTITY</th>
+                <th>UNIT PRICE</th>
+                <th>Order:</th>
+            </tr>
+                        
+            {%for product in products %}
+            <!-- Make Red if out of stock -->
+    {%if product[4]< 20 %}
+    <tr style="color:rgb(205, 0, 102);" >
+    {%elif product[4] < 1 %}
+    <tr style="color:red" >
+    {%else%}
+    <tr>
+    {%endif%}
+                <td>{{product[0]}}</td>
+                <td>{{product[1]}}</td>
+                <td>{{product[5]}}</td>
+                <td class="each-quantity" id="F{{product[0]}}" >{{product[4]}}</td>
+                <td>Ksh <span class="price-label"  id="{{product[3]}}" >
+                    {{product[3]}}
+                    </span></td>
+                
+                
+                <td><span onclick="minus_cart('{{product[0]}}','{{product[3]}}')" class="minus" style="font-size: 50px;color:red;" >- </span>
+                
+                <input onchange="Add_to_total('{{product[0]}}','{{product[3]}}','F{{product[0]}}')" class="num-input" name="{{product[0]}}" type="number" id="{{product[0]}}" style="font-size:30px;border:none;border-bottom:1px solid black;width:2cm;" value="0" >
+                     
+                     <span onclick="add_cart('{{product[0]}}','{{product[3]}}','F{{product[0]}}')" class="plus" style="font-size: 50px;color:rgb(0, 255, 0);" > +</span></td>
+            </tr>{%endfor%}
+            
+        </table>
+
+        <div class="receipt">
+            Total Amount: <h1 id="TotalCost2" >00.00</h1> <input type="number" style="display:none;font-size:50px;width:5cm;" name="TotalCost" id="TotalCost" value="00.00">
+            <br>
+            <label for="startOrder" id="cancelOrder">Cancel Button</label>
+            <button style="background:rgb(18, 92, 6)" name="submit" value="buyNow">BUY NOW</button><br><br><br><br><br>
+        
+        
+            <!-- PARTIAL PAY -->
+            <div class="partial_pay">
+                <input  type="text" placeholder="Customer Name" name="Customer_name" id="Customer_name"><br><br>
+                <input type="number" name="Amount_Paid" id="Amount_Paid" placeholder="CURRENT AMOUNT">
+                <button style="background:rgb(89, 6, 92)" name="submit" value="partial_pay">PARTIAL PAY</button>
+            </div>
+        </div>
+            </form>
+        </div>
+        
+    
+   
+
+    <!-- Past transactions table -->
+    
+    <div class="pastTransactions" style="display: block; margin-top: 10vh;">
+        <h2>Past Transactions</h2>
+        <input autocomplete="off" type="text" placeholder="Search " name="searchBar" id="searchTransactions">
+        <table id="pastTransactions" >
+            <tr>
+                <th>Transaction ID</th>
+                <th>Transaction Date</th>
+                <th>Total Cost</th>
+                <th>Items Bought:</th>
+                <th>Partial Pay:</th>
+            </tr>
+            <!-- Partial Payers -->
+            {% for partial_pay in partial_pay_data %}
+            <tr style="background:rgb(220, 131, 131);" >
+                
+                    <td>{{partial_pay[0]}}</td>
+                    <td>{{partial_pay[2]}}</td>
+                    <td>{{partial_pay[3]}}</td>
+                    <td><ul>{%for past_transaction_item in past_transaction_items%}
+                        {%if past_transaction_item[1] == partial_pay[0]%}
+                        <li>{{past_transaction_item[4]}} : Ksh {{past_transaction_item[3]}}x{{past_transaction_item[2]}}={{past_transaction_item[5]}}</li>
+                        {%endif%}
+                        {%endfor%}</ul>
+                    </td>
+                    <td> <ul>
+                        <li>Name:{{partial_pay[5]}}</li>
+                        <li>Rem:Ksh {{partial_pay[6]}}</li>
+                        <li> <form method="post">
+                            <input style="display: none;" type="number" name="Tid" value="{{partial_pay[0]}}">
+                            <button style="cursor:pointer;padding:10px;background:greenyellow;" value="partial_pay_now" name="submit" >PAY NOW</button>
+                        </form></li></ul>
+                    </td>
+                
+            </tr>
+            {%endfor%}
+        <!-- END OF PARTIAL PAY -->
+            {%for transaction in past_transactions%}
+            <tr>
+                <td>{{transaction[0]}}</td>
+                <td>{{transaction[2]}}</td>
+                <td>{{transaction[3]}}</td>
+                <td><ul>{%for past_transaction_item in past_transaction_items%}
+                    {%if past_transaction_item[1] == transaction[0]%}
+                    <li>{{past_transaction_item[4]}} : Ksh {{past_transaction_item[3]}}x{{past_transaction_item[2]}}={{past_transaction_item[5]}}</li>
+                    {%endif%}
+                    {%endfor%}</ul>
+                </td>
+                <td>NO</td>
+            </tr>
+            {%endfor%}
+            
+            
+        </table>
+    </div>
+
+    <script>
+        // Function to limit AMOUNT TO PAY
+        const limitedInput = document.getElementById('Amount_Paid');
+
+limitedInput.addEventListener('input', function() {
+    if (limitedInput.value > TotalCost.value) {
+        limitedInput.value = TotalCost.value;
+        alert('USE "BUY NOW"');
+    }
+});
+        // JavaScript code for handling the display of past transactions table
+        const pastTransactionsDiv = document.querySelector('.pastTransactions');
+        const startOrderCheckbox = document.getElementById('startOrder');
+
+        startOrderCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                pastTransactionsDiv.style.display = 'none';
+            } else {
+                pastTransactionsDiv.style.display = 'block';
+            }
+        });
+        
+        
+
+         // Start Order
+         var orderButton=document.getElementById("OrderButton");
+        var startOrder=document.getElementById("startOrder");
+        function funcOrder(){
+            if(startOrder.checked==true){
+                orderlist.style.display='block';
+            }
+            else{
+                orderlist.style.display='none';
+            };
+        };
+        //Increase/decrease the Order numbers
+        
+        function minus_cart(itemQ,itemP){
+           
+            var itemQ1=document.getElementById(itemQ);
+            var itemP1=document.getElementById(itemP);
+            if (Number(itemQ1.value)<=0){
+                alert('Cannot subtract from 0');
+            }
+            else{
+            itemQ1.value=Number(itemQ1.value)-1;
+            //Subtract Subtotal(Unit Price & Quantity) from TotalCost
+            var TotalCost=document.getElementById('TotalCost');
+            var TotalCost2=document.getElementById('TotalCost2');
+            
+            TotalCost.value=Number(TotalCost.value)-Number(itemP1.innerHTML);
+            
+            TotalCost2.innerHTML='Ksh '+String(TotalCost.value)+'.00';
+            };
+        };
+        function add_cart(itemQ,itemP,f){
+           
+           var itemQ1=document.getElementById(itemQ);
+           var itemP1=document.getElementById(itemP);
+           var f1=document.getElementById(f);
+           if (Number(itemQ1.value) >= Number(f1.innerHTML)){
+            alert('Maximum quantity achieved');
+           }
+           else{
+           
+           itemQ1.value=Number(itemQ1.value)+1;
+           //Add Subtotal(Unit Price & Quantity) to TotalCost
+           var TotalCost=document.getElementById('TotalCost');
+           var TotalCost2=document.getElementById('TotalCost2')
+           TotalCost.value=Number(TotalCost.value)+Number(itemP1.innerHTML);
+           TotalCost2.innerHTML='Ksh '+String(TotalCost.value)+'.00';
+           }
+       };
+//Input function Order
+const numInputs = document.querySelectorAll('.num-input');
+        const totalCostInput = document.getElementById('TotalCost');
+        const totalCostDisplay = document.getElementById('TotalCost2');
+        const priceLabels = document.querySelectorAll('.price-label');
+        const eachQuantities = document.querySelectorAll('.each-quantity');
+
+        numInputs.forEach((input, index) => {
+            input.addEventListener('input', () => {
+                calculateTotalCost(index);
+               
+            });
+        });
+
+        function calculateTotalCost(index) {
+            let totalCost = 0;
+            numInputs.forEach((input, i) => {
+                const quantity = parseInt(input.value);
+                const price = parseFloat(priceLabels[i].textContent);
+                const remainingQuantity = parseInt(eachQuantities[i].textContent);
+                if (!isNaN(quantity)) {
+                    if (quantity > remainingQuantity) {
+                        alert("Max quantity reached");
+                        input.value = remainingQuantity;
+                        totalCost += remainingQuantity * price;
+                    }
+                    else{
+                    totalCost += quantity * price;
+                    }
+                }
+            });
+            totalCostInput.value = totalCost.toFixed(2);
+            
+            totalCostDisplay.textContent = `Ksh ${totalCost.toFixed(2)}`;
+        };
+       //Search Engine Code
+const searchInput = document.getElementById('searchBar');
+const itemTable = document.getElementById('itemTable');
+const rows = itemTable.getElementsByTagName('tr');
+
+searchInput.addEventListener('input', filterItems);
+
+function filterItems() {
+  const searchTerm = searchInput.value.toLowerCase();
+  for (let i = 1; i < rows.length; i++) { // Start the loop from index 1 to skip the header row
+    const row = rows[i];
+    const cells = row.getElementsByTagName('td');
+    let matchFound = false;
+
+    for (const cell of cells) {
+      const cellValue = cell.textContent.toLowerCase();
+      if (cellValue.includes(searchTerm)) {
+        matchFound = true;
+        break;
+      }
+    }
+
+    if (matchFound) {
+      row.style.display = 'table-row';
+    } else {
+      row.style.display = 'none';
+    }
+  }
+};
+//Search Engine Code
+const searchTransactions = document.getElementById('searchTransactions');
+const Ttable = document.getElementById('pastTransactions');
+const rowsT = Ttable.getElementsByTagName('tr');
+
+searchTransactions.addEventListener('input', filterItemsT);
+
+function filterItemsT() {
+  const searchTerm = searchTransactions.value.toLowerCase();
+  for (let i = 1; i < rowsT.length; i++) { // Start the loop from index 1 to skip the header row
+    const row = rowsT[i];
+    const cells = row.getElementsByTagName('td');
+    let matchFound = false;
+
+    for (const cell of cells) {
+      const cellValue = cell.textContent.toLowerCase();
+      if (cellValue.includes(searchTerm)) {
+        matchFound = true;
+        break;
+      }
+    }
+
+    if (matchFound) {
+      row.style.display = 'table-row';
+    } else {
+      row.style.display = 'none';
+    }
+  }
+};
+//cancel Order
+document.getElementById("cancelOrder").addEventListener("click", function() {
+            document.getElementById("TotalCost").value = "00.00";
+            document.getElementById("TotalCost2").innerHTML = "00.00";
+            const quantityInputs = document.querySelectorAll('input[type="number"]');
+            quantityInputs.forEach(input => input.value = "0");
+        });
+         // Start Order
+        
+        function funclabel(){
+            var button=document.getElementById("PartialPayLabel");
+            var span=document.getElementById("PartialPaySpan");
+            if(button.checked==true){
+                span.style.display='block';
+            }
+            else{
+                span.style.display='none';
+            };
+        };
+
+    </script>
+</body>
+</html>
