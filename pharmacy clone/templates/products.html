@@ -147,14 +147,15 @@
             <li><a href="/sign_in">LOGOUT</a></li>
         </ul>
     </div>
-    <input style="display:none;" onclick="appear('restock__','cont1','cont2','cont3','cont4','cont5'  ,'cont6','cont7','cont8')" type="checkbox" name="ref" id="restock__">
-    <input style="display:none;" onclick="appear('addNewProduct','cont2','cont3','cont5','cont4','cont1' ,'cont6','cont7','cont8')" type="checkbox" name="ref" id="addNewProduct">
-    <input style="display:none;" onclick="appear('DELETE_PRODUCT','cont3','cont1','cont5','cont2','cont4','cont6','cont7','cont8')" type="checkbox" name="ref" id="DELETE_PRODUCT">
-    <input style="display:none;" onclick="appear('deletestock','cont4','cont1','cont5','cont2','cont3','cont6','cont7','cont8')" type="checkbox" name="ref" id="deletestock">
-    <input style="display:none;" onclick="appear('newSupplier','cont5','cont1','cont2','cont3','cont4','cont6','cont7','cont8')" type="checkbox" name="ref" id="newSupplier">
-    <input style="display:none;" onclick="appear('delete_supplier','cont6','cont1','cont2','cont3','cont4','cont5','cont7','cont8')" type="checkbox" name="ref" id="delete_supplier">
-    <input style="display:none;" onclick="appear('NewMember','cont7','cont1','cont2','cont3','cont4','cont6','cont5','cont8')" type="checkbox" name="ref" id="NewMember">
-    <input style="display:none;" onclick="appear('delete_Member','cont8','cont1','cont2','cont3','cont4','cont5','cont6','cont7')" type="checkbox" name="ref" id="delete_Member">
+    <input style="display:none;" onclick="appear('restock__','cont1')" type="checkbox" name="ref" id="restock__">
+    <input style="display:none;" onclick="appear('addNewProduct','cont2')" type="checkbox" name="ref" id="addNewProduct">
+    <input style="display:none;" onclick="appear('DELETE_PRODUCT','cont3')" type="checkbox" name="ref" id="DELETE_PRODUCT">
+    <input style="display:none;" onclick="appear('deletestock','cont4')" type="checkbox" name="ref" id="deletestock">
+    <input style="display:none;" onclick="appear('newSupplier','cont5')" type="checkbox" name="ref" id="newSupplier">
+    <input style="display:none;" onclick="appear('delete_supplier','cont6')" type="checkbox" name="ref" id="delete_supplier">
+    <input style="display:none;" onclick="appear('NewMember','cont7')" type="checkbox" name="ref" id="NewMember">
+    <input style="display:none;" onclick="appear('delete_Member','cont8')" type="checkbox" name="ref" id="delete_Member">
+
 
 <!-- Cont 1 -->
     <div  class="container"><label for="restock__">
@@ -170,11 +171,11 @@
                     <th>CATEGORY</th>
                     <th>SOURCE</th>
                     <th>QUANTITY</th>
-                    <th>UNIT PRICE</th>
+                    <th>UNIT SP</th>
                 </tr>
                 {%for product in products_active%}
                 <tr>
-                    <td><input onclick="sp_autoupdate('product{{product[0]}}','{{product[3]}}')" required type="radio" name="productId" value="{{product[0]}}" id="product{{product[0]}}"></td>
+                    <td><input onclick="sp_autoupdate('product{{product[0]}}','{{product[3]}}','sellingPrice')" required type="radio" name="productId" value="{{product[0]}}" id="product{{product[0]}}"></td>
                     <td> <label for="product{{product[0]}}"> {{product[0]}}</label></td>
                     <td> <label for="product{{product[0]}}"> {{product[1]}}</label></td>
                     <td> <label for="product{{product[0]}}"> {{product[5]}}</label></td>
@@ -186,12 +187,13 @@
 
             </table>
             <table>
-            <tr><td><label for="">Quantity:</label>     </td><td style="width:100%;" ><input required  type="number" name="Quantity" id="Quantity"><br></td></tr>
-            <tr><td><label for="">Unit Buying Price: </label></td><td style="width:100%;" ><input required  name="productBP" value="0" type="number"><br></td></tr>
+            <tr><td><label for="">Quantity:</label>     </td><td style="width:100%;" ><input required step="any" type="number" name="Quantity" id="Quantity"><br></td></tr>
+            <tr><td><label for="">Unit Buying Price: </label></td><td style="width:100%;" ><input required  name="productBP" id="buyingPrice" value="0" type="number"><br></td></tr>
             <tr><td><label for="">Unit Selling Price: </label></td><td style="width:100%;" ><input required  name="productSP" id="sellingPrice" type="number"><br></td></tr>
             
             
             </table><br><br>
+             <h3>SUBTOTAL :Ksh <span id="subtotal_restock" >0.0</span> </h3><br><br>
             <button value="restock" name="submit">RESTOCK</button>
         </form>
     </div>
@@ -204,7 +206,17 @@
                 
                 <tr><td><label for="">PRODUCT NAME: </label></td><td style="width:100%;" ><input required  name="productName" type="text"><br></td></tr>
                 <tr><td><label for="">CATEGORY:</label>     </td><td style="width:100%;" ><input required  type="text" name="category" ><br></td></tr>
-                <tr><td><label for="">SOURCE:</label>     </td><td style="width:100%;" ><input required  type="text" name="source" ><br></td></tr>
+                <tr><td><label for="">SOURCE:</label>     </td><td style="width:100%;" >
+                   <br>
+                    {%for product in products_active%}
+                    <label for="source{{product[0]}}">{{product[1]}}</label>
+                    <input required id="source{{product[0]}}"  type="radio" value="{{product[1]}}" name="source" ><br>
+                    
+                    {%endfor%}
+                    <label for="other_s"> outside </label>
+                    <input type="radio" name="source" id="other_s" value="other" ><br>
+                    <br>
+                 </td></tr>
                 <tr><td><label for="">To-sell price : </label></td><td style="width:100%;" ><input required  type="number" name="productCost"><br></td></tr>
             </table>
 
@@ -227,7 +239,10 @@
         
         </form>
     </div> -->
+
+    
     {%if managerCheck=='Yes'%}
+
     <!-- Cont 3-->
     <div class="container">
         <label for="DELETE_PRODUCT"><h1>DELETE PRODUCT</h1></label>
@@ -359,10 +374,25 @@
     </div>
     {%endif%}
     <script>
+        //subtotal autoupdate
+        var q=document.getElementById('Quantity');
+        var bp=document.getElementById('buyingPrice');
+        q.addEventListener('input', function() {
+            var to_be= document.getElementById('subtotal_restock');
+            var st=Number(bp.value)*Number(q.value);
+            to_be.innerHTML=st;
+        });
+        bp.addEventListener('input', function() {
+            var to_be= document.getElementById('subtotal_restock');
+            var st=Number(bp.value)*Number(q.value);
+            to_be.innerHTML=st;
+        });
+
+
         //Selling Price autoUpdate
-        function sp_autoupdate(drugid,drugcost){
+        function sp_autoupdate(drugid,drugcost,to_be){
             var drugidvar=document.getElementById(drugid);
-            var sp=document.getElementById('sellingPrice');
+            var sp=document.getElementById(to_be);
             if (drugidvar.checked==true){
                 sp.value=drugcost;
             };
@@ -486,46 +516,28 @@
             }
         };
         //Appear containers
-        function appear(radio1,cont1,cont2,cont3,cont4,cont5,cont6,cont7){
-            check1=document.getElementById(radio1);
-            if (check1.checked==true){
-                cont1=document.getElementById(cont1);
-                cont1.style.display='block';
-                cont2=document.getElementById(cont2);
-                cont2.style.display='none';
-                cont3=document.getElementById(cont3);
-                cont3.style.display='none';
-                cont4=document.getElementById(cont4);
-                cont4.style.display='none';
-                cont5=document.getElementById(cont5);
-                cont5.style.display='none';
-                cont6=document.getElementById(cont6);
-                cont6.style.display='none';
-                cont7=document.getElementById(cont7);
-                cont7.style.display='none';
-                cont8=document.getElementById(cont8);
-                cont8.style.display='none';
-                
+        function appear(radio1,cont1){
+            var tables=['cont1','cont2','cont3','cont4','cont5','cont6','cont7','cont8','cont9','cont10','cont11','cont12'];
+            var check1=document.getElementById(radio1);
+                if (check1.checked==true){
+                    for(let i=0;i<tables.length;i++){
+                        
+                        var table = document.getElementById(tables[i]);
+                        var contId=document.getElementById(cont1);
+                        table.style.display='none';
+                        contId.style.display='block';
+                }
             }
-            else{
-                cont1=document.getElementById(cont1);
-                cont1.style.display='none';
-                cont2=document.getElementById(cont2);
-                cont2.style.display='none';
-                cont3=document.getElementById(cont3);
-                cont3.style.display='none';
-                cont4=document.getElementById(cont4);
-                cont4.style.display='none';
-                cont5=document.getElementById(cont5);
-                cont5.style.display='none';
-                cont6=document.getElementById(cont6);
-                cont6.style.display='none';
-                cont7=document.getElementById(cont7);
-                cont7.style.display='none';
-                cont8=document.getElementById(cont8);
-                cont8.style.display='none';
+                else{
+                    for(let i=0;i<tables.length;i++){
+                        var table = document.getElementById(tables[i]);
+                        var contId=document.getElementById(cont1);
+                        table.style.display='none';
+                        contId.style.display='none';
+                }
             }
-        };
+            
+        }
         
     </script>
 </body>

@@ -3,45 +3,87 @@
 <head>
     <title>Pharmaceutical Website</title>
     <style>
+        /* General styles */
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
             background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            padding-bottom: 3cm;
         }
 
         h1 {
+            color: #0066cc;
             text-align: center;
-            margin-bottom: 20px;
-            color: #007bff;
+            transition: .5s;
+            border-radius: 1cm;
+        }
+        h1:hover{
+            background:#5658c4;
+            
+            color:white;
+            padding:0.5cm;
         }
 
-        .casual {
-            text-align: center;
-            margin-top: 20px;
+
+        /* Navbar styles */
+        .navbar {
+            background-color: #0066cc;
+            color: white;
+            padding: 10px;
+            text-align: right;
         }
 
-        #orderlist {
-            margin-top: 20px;
-            background: #ffffff;
+        .navbar ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar li {
+            display: inline;
+            margin-left: 20px;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 1000px;
+            margin: 50px auto;
+            background-color: #ffffff;
             border: 1px solid #ccc;
             padding: 20px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
         }
 
-        #searchBar {
+        /* Input styles */
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        button {
             padding: 10px;
-            width: 100%;
-            margin: 20px 0;
+            width: 70%;
+            margin-bottom: 10px;
             border: 1px solid #ccc;
-            border-radius: 1cm;
+            border-radius: 4px;
         }
 
+        button {
+            background-color: #0066cc;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Table styles */
         .itemTable {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-
+        
         .itemTable th,
         .itemTable td {
             padding: 8px;
@@ -49,120 +91,23 @@
             border-bottom: 1px solid #ccc;
         }
 
-        .itemTable th {
-            background-color: #007bff;
+        .itemTable2 th{
+            background-color: #0066cc;
             color: white;
         }
 
         .itemTable tr:nth-child(even) {
-            background-color: #e4e4e4;
-        }
-        .itemTable label{
-            cursor: pointer;
-        }
-        .itemTable tr:hover{
-            background-color:#ddd!important ;
-        }
-
-        .minus,
-        .plus {
-            cursor: pointer;
-        }
-
-        .receipt {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .receipt input[type="number"] {
-            padding: 5px;
-            width: 100px;
-            margin-top: 10px;
-            border: 1px solid #ccc;
-        }
-
-        .receipt button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        .receipt button:hover {
-            background-color: #0056b3;
-        }
-
-        /* Button styles */
-        label[for="startOrder"],
-        label[for="cancelOrder"],
-        #OrderButton {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        label[for="startOrder"]:hover,
-        label[for="cancelOrder"]:hover,
-        #OrderButton:hover {
-            background-color: #0056b3;
-        }
-
-        label[for="startOrder"],
-        #OrderButton {
-            margin: 5px;
-        }
-        .pastTransactions {
-            display: block;
-            margin: 50vh auto;
-            max-width: 800px;
-            background-color: #ffffff;
-            border: 1px solid #ccc;
-            padding: 20px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .pastTransactions h2 {
-            text-align: center;
-            color: #007bff;
-            margin-bottom: 15px;
-        }
-
-        .pastTransactions table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .pastTransactions th,
-        .pastTransactions td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ccc;
-        }
-
-        .pastTransactions th {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .pastTransactions tr:nth-child(even) {
             background-color: #f2f2f2;
         }
-
-        .pastTransactions li {
-            margin-bottom: 5px;
-        }
-        ul li{
-            list-style-type: none;
+        label:hover{
+            cursor: pointer;
+            background:#56c483;
         }
         /* Navbar styles */
         .navbar {
             background-color: #44aadd;
             color: white;
             padding:25px 20px;
-            margin:0 0 0.5cm 0;
         }
 
         .navbar ul {
@@ -189,298 +134,432 @@
         .navbar li a:hover {
             background-color: #56c483;
         }
-        body table{
-            margin:1cm;
-        }
-        #Labeltable1,#Labeltable2 {
-            padding: 8px 16px;
-            margin:1cm;
-            border: 1px solid #44aadd;
-            background: #44aadd;
-            color: white;
-            cursor: pointer;
-            border-radius: 5px 5px 0 0;
-        }
-
-        /* Hover effect for the label */
-        #Labeltable1:hover,#Labeltable2:hover {
-            background-color: #56c483;
-            border-color: #56c483;
-        }
-        th{
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
-    
     <div class="navbar">
         <ul>
             <li><a href="/order">ORDER</a></li>
-            <li><a href="/products">MANAGEMENT</a></li>
-            <li><a style="background: #56c483;" href="/store">STORE</a></li>
+            <li><a style="background-color: #56c483;"  href="/products">MANAGEMENT</a></li>
+            <li><a href="/store">STORE</a></li>
             <li><a href="/accounts">ACCOUNT</a></li>
             <li><a href="/bank">FINANCE</a></li>
             <li><a href="/sign_in">LOGOUT</a></li>
         </ul>
     </div>
+    <input style="display:none;" onclick="appear('restock__','cont1')" type="checkbox" name="ref" id="restock__">
+    <input style="display:none;" onclick="appear('addNewProduct','cont2')" type="checkbox" name="ref" id="addNewProduct">
+    <input style="display:none;" onclick="appear('DELETE_PRODUCT','cont3')" type="checkbox" name="ref" id="DELETE_PRODUCT">
+    <input style="display:none;" onclick="appear('deletestock','cont4')" type="checkbox" name="ref" id="deletestock">
+    <input style="display:none;" onclick="appear('newSupplier','cont5')" type="checkbox" name="ref" id="newSupplier">
+    <input style="display:none;" onclick="appear('delete_supplier','cont6')" type="checkbox" name="ref" id="delete_supplier">
+    <input style="display:none;" onclick="appear('NewMember','cont7')" type="checkbox" name="ref" id="NewMember">
+    <input style="display:none;" onclick="appear('delete_Member')" type="checkbox" name="ref" id="delete_Member">
+    <input style="display:none;" onclick="appear('AFFECT_BIRDS_INPUT','REDUCE_BIRDS_TABLE')" type="checkbox" name="ref" id="AFFECT_BIRDS_INPUT">
+    <input style="display:none;" onclick="appear('AFFECT_BIRDS_INPUT','REDUCE_BIRDS_TABLE')" type="checkbox" name="ref" id="AFFECT_BIRDS_INPUT">
 
-    <input style="display:none;" type="radio" name="labels" id="table1" onclick="toggleTable('itemTable','Labeltable1', 'stocks_table','Labeltable2')">
-    <input style="display:none;" type="radio" name="labels" id="table2" onclick="toggleTable('stocks_table','Labeltable2', 'itemTable','Labeltable1')">
-    
-    <label style="background:#56c483;" class="LabelTable" for="table1" id="Labeltable1" >Products Table</label>
-    <label class="LabelTable" for="table2" id="Labeltable2" >STOCK TABLE</label>
+<!-- Cont 1 -->
+    <div  class="container"><label for="restock__">
+        <h1>RE-STOCK :</h1></label>
+        <form id="cont1" style="display:none;" method="post">
+            <p style="color:red" >{{msg}}</p>
+            <input placeholder="ENTER PRODUCT DETAILS" type="text" name="searchBar" id="searchBar1">
+            <table class="itemTable" id="itemTable">
+                <tr>
+                    <th>Check</th>
+                    <th>PRODUCT ID</th>
+                    <th>PRODUCT NAME</th>
+                    <th>CATEGORY</th>
+                    <th>SOURCE</th>
+                    <th>QUANTITY</th>
+                    <th>UNIT PRICE</th>
+                </tr>
+                {%for product in products_active%}
+                <tr>
+                    <td><input onclick="sp_autoupdate('product{{product[0]}}','{{product[3]}}','Quantity')" required type="radio" name="productId" value="{{product[0]}}" id="product{{product[0]}}"></td>
+                    <td> <label for="product{{product[0]}}"> {{product[0]}}</label></td>
+                    <td> <label for="product{{product[0]}}"> {{product[1]}}</label></td>
+                    <td> <label for="product{{product[0]}}"> {{product[5]}}</label></td>
+                    <td> <label for="product{{product[0]}}"> {{product[6]}}</label></td>
+                    <td> <label for="product{{product[0]}}"> {{product[4]}}</label></td>
+                    <td> <label for="product{{product[0]}}">Ksh {{product[3]}}</label></td>
+                </tr>
+                {%endfor%}
 
-
-<form  id="cont4" method="post">
-    <div class="container">
-    <input placeholder="search Product/Stock info" type="text" name="searchBar" id="searchBar">
-    <table class="itemTable" id="itemTable">
-        <tr>
-            <th onclick="sortTable( 'itemTable', 0)" >Check</th>
-            <th onclick="sortTable( 'itemTable', 1)" >PRODUCT ID</th>
-            <th onclick="sortTable( 'itemTable', 2)" >PRODUCT NAME</th>
-            <th onclick="sortTable( 'itemTable', 3)" >CATEGORY</th>
-            <th onclick="sortTable( 'itemTable', 4)" >SOURCE</th>
-            <th onclick="sortTable( 'itemTable', 5)" >BUYING PRICE</th>
-            <th onclick="sortTable( 'itemTable', 6)" >SELLING PRICE</th>
-            <th onclick="sortTable( 'itemTable', 7)" >QUANTITY</th>
-            <th onclick="sortTable( 'itemTable', 8)" >ACTIVE</th>
+            </table>
+            <table>
+            <tr><td><label for="">Quantity:</label>     </td><td style="width:100%;" ><input required  type="number" name="Quantity" id="Quantity"><br></td></tr>
+            <tr><td><label for="">Unit Buying Price: </label></td><td style="width:100%;" ><input required  name="productBP" value="0" type="number"><br></td></tr>
+            <tr><td><label for="">Unit Selling Price: </label></td><td style="width:100%;" ><input required  name="productSP" id="sellingPrice" type="number"><br></td></tr>
             
-        </tr>
-        {%for product in products %}
-            <!-- Make Red if out of stock -->
-    {%if product[4]< 20 %}
-    <tr style="color:rgb(205, 0, 102);" >
-    {%elif product[4] < 1 %}
-    <tr style="color:red" >
-    
-    {%elif product[2] =='NO'%}
-    <tr style="color:gray;" >
-    {%else%}
-    <tr>
-    {%endif%}
-    <td> <input type="radio" name="product" value="{{product[0]}}" id="product{{product[0]}}"> </td>
-    <td>{{product[0]}}</td>
-    <td>{{product[1]}}</td>
-    <td>{{product[5]}}</td>
-    <td>{{product[6]}}</td>
-    <td>Ksh {{product[3]}}</td>
-    <td>Ksh {{product[3]}}</td>
-    <td >{{product[4]}}</td>
-    <td>{{product[2]}}</td>
-    
-        {%endfor%}
-    </table>
-
-    <table style="display:none;" class="itemTable" id="stocks_table">
-        <tr>
-            <th onclick="sortTable('stocks_table', 0)">Check</th>
-            <th onclick="sortTable('stocks_table', 1)">STOCK ID</th>
-            <th onclick="sortTable('stocks_table', 2)">DATE</th>
-            <th onclick="sortTable('stocks_table', 3)">PRODUCT NAME</th>
-            <th onclick="sortTable('stocks_table', 4)">SOURCE</th>
-            <th onclick="sortTable('stocks_table', 5)">CATEGORY</th>
-            <th onclick="sortTable('stocks_table', 6)">QUANTITY</th>
-            <th onclick="sortTable('stocks_table', 7)">IN-STOCK</th>
-        </tr>
-        {%for stock in stockdataDesc%}
-        <tr>
-            <td> <input type="radio" name="stock" id="Stock{{stock[0]}}"> </td>
-            <td>{{stock[0]}}</td>
-            <td>{{stock[2]}}</td>
-            {%for product in products%}
-            {%if product[0]==stock[1]%}
-            <td>{{product[1]}}</td>
-            <td>{{product[6]}}</td>
-            <td>{{product[5]}}</td>
-            <td>{{stock[3]}}</td>
-            <td>{{product[4]}}</td>
-            {%endif%}
-            {%endfor%}
-
             
-        </tr>
-        {%endfor%}
-        
-        
-        <!-- ... (other suppliers data rows) ... -->
-    </table>
-
+            </table><br><br>
+            <button value="restock" name="submit">RESTOCK</button>
+        </form>
     </div>
-</form>
+    <!-- Cont 2 -->
+    <div  class="container"><label for="addNewProduct">
+        <h1>ADD A NEW PRODUCT</h1></label>
+        <form id="cont2" style="display:none;" method="post">
 
+            <table>
+                
+                <tr><td><label for="">PRODUCT NAME: </label></td><td style="width:100%;" ><input required  name="productName" type="text"><br></td></tr>
+                <tr><td><label for="">CATEGORY:</label>     </td><td style="width:100%;" ><input required  type="text" name="category" ><br></td></tr>
+                <tr><td><label for="">SOURCE:</label>     </td><td style="width:100%;" >
+                   <br>
+                    {%for source in sources%}
+                    <label for="source{{source[0]}}">{{source[1]}}</label>
+                    <input required id="source{{source[0]}}"  type="radio" value="{{source[0]}}" name="source" ><br>
+                    {%endfor%}
+                    <br>
+                 </td></tr>
+                <tr><td><label for="">To-sell price : </label></td><td style="width:100%;" ><input required  type="number" name="productCost"><br></td></tr>
+            </table>
 
+            <button name="submit" value="addNewProduct" >ADD NEW PRODUCT</button>
+        </form>
+        
+    </div>
+     <!-- Cont 5-->
+     <!-- <div class="container">
+        <label for="newSupplier"><h1>ADD NEW SUPPLIER</h1></label>
+        <form id="cont5" style="display:none;" method="post">
+                <table>
+                    <tr><td><label for="">SUPPLIER NAME:</label>     </td><td style="width:100%;" ><input required  type="text" name="SupplierName" ><br></td></tr>
+                    <tr><td><label for="">CONTACT: </label></td><td style="width:100%;" ><input required  name="contact" type="text"><br></td></tr>
+                    <tr><td><label for="">LOCATION:</label></td><td style="width:100%;" ><input required  name="location" type="text"><br></td></tr>
 
-
-<script>
-//funcorder
-function toggleTable(showTableId,ColorLabelId, hideTableId,DiscolorLabelId) {
-    const showTable = document.getElementById(showTableId);
-    const hideTable = document.getElementById(hideTableId);
-    const ColorLabel = document.getElementById(ColorLabelId);
-    const DiscolorLabel = document.getElementById(DiscolorLabelId);
+                </table>
     
-    if (showTable && hideTable) {
-        showTable.style.display = 'table';
-        hideTable.style.display = 'none';
-        ColorLabel.style.background='#56c483';
-        DiscolorLabel.style.background='#44aadd';
-    }
-}
-//end of func order
+                <button name="submit" value="AddNewSupplier" >NEW SUPPLIER</button>
+        
+        </form>
+    </div> -->
+    <!-- REDUCE BIRDS -->
+    <div class="container">
+        <label for="AFFECT_BIRDS_INPUT"><h1>AFFECT BIRDS</h1></label>
+        <form style="display:none;" id="AFFECT_BIRDS_TABLE" method="post">
+            <table class="itemTable">
+                <tr>
+                    <th>Check</th>
+                    <th>SOURCE ID</th>
+                    <th>SOURCE NAME</th>
+                    <th>POPULATION</th>
+                </tr>
+                {%for source in sources%}
+                <tr>
+                    <td><input onclick="sp_autoupdate('reduce{{source[0]}}','{{source[2]}}','old_pop')" required type="radio" value="{{source[0]}}" name="sourceId" id="reduce{{source[0]}}"></td>
+                    <td> <label for="reduce{{source[0]}}">     {{source[0]}}</label></td>
+                    <td> <label for="reduce{{source[0]}}">     {{source[1]}}</label></td>
+                    <td> <label for="reduce{{source[0]}}">     {{source[2]}}</label></td>
+                   
+                </tr>
+                {%endfor%}<br><br>
+            </table>
+            <label for="old_pop"> OLD POPULATION </label><input readonly type="number" name="old_pop" id="old_pop"><br><br>
+            <label for="affected">ENTER THE CHANGE</label> <input type="number" name="affected" id="affected"><br><br>
 
-const sortOrders = {};
+            <button name="submit" style="background:rgb(150, 46, 46);" value="reduce_source" >REDUCE BIRDS</button>
+            <button name="submit" style="background:rgb(44, 167, 17);" value="increase_source" >INCREASE BIRDS</button>
+        </form>
+    </div>
+    
+    {%if managerCheck=='Yes'%}
+    <!-- ADD SOURCE -->
+    <div class="container">
+        <label for="ADD_SOURCE_R"><h1>ADD SOURCE</h1></label>
 
-function sortTable(tableId, columnIndex) {
-    const table = document.getElementById(tableId);
-    const rows = Array.from(table.rows);
+    <form style="display:none;" id="ADD_SOURCE_T" method="post">
+        <tr><td><label for="">SOURCE NAME: </label></td><td style="width:100%;" ><input required  name="sourceName" type="text"><br></td></tr>
+        <tr><td><label for="">SOURCE POPULATION: </label></td><td style="width:100%;" ><input required  name="sourcePopulation" type="number"><br></td></tr>
+        <button name="submit" style="background:rgb(44, 167, 17);" value="add_source" >INTRODUCE SOURCE</button>
 
-    const dataRows = rows.slice(1);
+    </form> 
+    </div>
+    <!-- Cont 3-->
+    <div class="container">
+        <label for="DELETE_PRODUCT"><h1>DELETE PRODUCT</h1></label>
+        <form style="display:none;" id="cont3" method="post">
+            <input placeholder="ENTER PRODUCT DETAILS" type="text" name="searchBar" id="searchBar3">
+            <table class="itemTable" id="itemTable3">
+                <tr>
+                    <th>Check</th>
+                    <th>PRODUCT ID</th>
+                    <th>PRODUCT NAME</th>
+                    <th>CATEGORY</th>
+                    <th>SOURCE</th>
+                    <th>COST</th>
+                    <th>QUANTITY</th>
+                    <th>ACTIVE</th>
+                </tr>
+                {%for product in products%}
+                <tr>
+                    <td><input required type="radio" value="{{product[0]}}" name="productId" id="delete{{product[0]}}"></td>
+                    <td> <label for="delete{{product[0]}}">     {{product[0]}}</label></td>
+                    <td> <label for="delete{{product[0]}}">     {{product[1]}}</label></td>
+                    <td> <label for="delete{{product[0]}}">     {{product[5]}}</label></td>
+                    <td> <label for="delete{{product[0]}}">     {{product[6]}}</label></td>
+                    <td> <label for="delete{{product[0]}}">     {{product[3]}}</label></td>
+                    <td> <label for="delete{{product[0]}}"> Ksh {{product[4]}}</label></td>
+                    <td> <label for="delete{{product[0]}}">     {{product[2]}}</label></td>
+                    
+                </tr>
+                {%endfor%}
+            </table>
+            <button name="submit" style="background:rgb(150, 46, 46);" value="delete_product" >DELETE PRODUCT</button>
+            <button name="submit" style="background:rgb(10, 160, 53);" value="activate_product" >ACTIVATE PRODUCT</button>
+        </form>
+    </div>
 
-    if (!sortOrders[tableId]) {
-        sortOrders[tableId] = Array(dataRows[0].cells.length).fill(0);
-    }
+<!--Cont 4-->
 
-    sortOrders[tableId][columnIndex] = 1 - sortOrders[tableId][columnIndex];
+<div class="container">
+    <label for="deletestock"><h1>DELETE STOCK</h1></label>
+    <form style="display:none;" id="cont4" method="post">
+        <input placeholder="ENTER PRODUCT/STOCK INFO" type="text" name="searchBar" id="searchBar2">
+        <table class="itemTable" id="itemTable2">
+            <tr>
+                <th>Check</th>
+                <th>Stock Date</th>
+                <th>Stock ID</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>source</th>
+                <th>Staff ID</th>
+                <th>Buying Price</th>
+                <th>Quantity</th>
+                <th>IN-STOCK</th>
+                
+            </tr>
+            {%for stock in stockdataDesc %}
+           <tr>
+                <td><input required type="radio" name="StockId" value="{{stock[0]}}" id="DelStock{{stock[0]}}"></td>
+                <td> <label for="DelStock{{stock[0]}}">{{stock[2]}} </label></td>
+                <td> <label for="DelStock{{stock[0]}}">{{stock[0]}} </label></td>
+                {%for product in products%}
+                    {%if product[0]==stock[1]%}
+                <td> <label for="DelStock{{stock[0]}}">{{product[1]}}</label></td>
+                <td> <label for="DelStock{{stock[0]}}">{{product[5]}} </label></td>
+                <td> <label for="DelStock{{stock[0]}}">{{product[6]}} </label></td>
+                <td> <label for="DelStock{{stock[0]}}">{{product[4]}} </label></td>
+                <td> <label for="DelStock{{stock[0]}}">{{stock[3]}} </label></td>
+                <td> <label for="DelStock{{stock[0]}}"> {{stock[4]}}</label></td>
+                <td> <label for="DelStock{{stock[0]}}">Ksh {{stock[5]}} </label></td>
+                {%endif%}
+                {%endfor%}
+                
+            </tr>
+            {%endfor%}
+        </table>
+        <button name="submit" style="background:rgb(150, 46, 46);"  value="delete_stock" >DELETE STOCK</button>
+    </form>
+</div>
+    <!-- cont6 DELETE SUPPLIER -->
 
-    dataRows.sort((a, b) => {
-        const aValue = a.cells[columnIndex].textContent;
-        const bValue = b.cells[columnIndex].textContent;
+    <!-- cont7 ADD STAFF MEMBER -->
+    <div class="container">
+        <label for="NewMember"><h1>ADD NEW MEMBER</h1></label>
+        <form id="cont7" style="display:none;" method="post">
+                <table>
+                    <tr><td><label for="">FIRST AND LAST NAMES:</label>     </td><td style="width:100%;" ><input required  type="text" name="FullName" ><br></td></tr>
+                    <tr><td><label for="">ID NUMBER: </label></td><td style="width:100%;" ><input required  name="IdNumber" type="number"><br></td></tr>
+                    <tr><td><label for="">CONTACT:</label></td><td style="width:100%;" ><input required  name="contact" type="text"><br></td></tr>
+                    <tr><td><label for="">TITLE:</label></td><td style="width:100%;" ><input required  name="title" type="text"><br></td></tr>
+                    
 
-        let comparison;
+                </table>
+    
+                <button name="submit" value="NewMember" >NEW MEMBER</button>
+        
+        </form>
+    </div>
+    <!-- cont8 DELETE STAFF MEMBER -->
+    <div class="container">
+        <label for="delete_Member"><h1>DELETE MEMBER</h1></label>
+        <form style="display:none;" id="cont8" method="post">
+            <input placeholder="ENTER MEMBER NAME" type="text" name="searchBar" id="searchBarMember">
+            <table class="itemTable" id="itemTableMember">
+                <tr>
+                    <th>Check</th>
+                    <th>Member ID</th>
+                    <th>Member Names</th>
+                    <th>Title</th>
+                    <th>Contact</th>
+                    <th>Employment Date</th>
+                    <th>Status</th>
+                </tr>
+                {%for member in users %}
+                <tr>
+                    <td><input required type="radio" name="memberID" value="{{member[0]}}" id="DelMember{{member[0]}}"></td>
+                    <td> <label for="DelMember{{member[0]}}">{{member[0]}} </label></td>
+                    <td> <label for="DelMember{{member[0]}}">{{member[1]}} </label></td>
+                    <td> <label for="DelMember{{member[0]}}">{{member[2]}} </label></td>
+                    <td> <label for="DelMember{{member[0]}}">{{member[3]}} </label></td>
+                    <td> <label for="DelMember{{member[0]}}">{{member[4]}} </label></td>
+                    <td> <label for="DelMember{{member[0]}}">{{member[5]}} </label></td>
 
-        if (isNaN(aValue)) {
-            comparison = aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: 'base' });
-        } else {
-            comparison = parseFloat(aValue) - parseFloat(bValue);
-        }
+                    </tr>
+                {%endfor%}
+            </table>
+            <button name="submit" style="background:rgb(150, 46, 46);"  value="delete_Member" >DEACTIVATE</button>
+            <button name="submit" style="background:rgb(36, 142, 60);"  value="ACTIVATE" >ACTIVATE</button>
+        </form>
+    </div>
+    {%endif%}
+    <script>
+        //population
 
-        if (sortOrders[tableId][columnIndex] === 1) {
-            comparison *= -1;
-        }
-
-        return comparison;
-    });
-
-    while (table.firstChild) {
-        table.removeChild(table.firstChild);
-    }
-
-    table.appendChild(rows[0]);
-
-    dataRows.forEach(row => table.appendChild(row));
-}
-
-    //Selling Price autoUpdate
-    function sp_autoupdate(drugid,drugcost){
-        var drugidvar=document.getElementById(drugid);
-        var sp=document.getElementById('sellingPrice');
-        if (drugidvar.checked==true){
-            sp.value=drugcost;
+        //Selling Price autoUpdate
+        function sp_autoupdate(drugid,drugcost,to_be){
+            var drugidvar=document.getElementById(drugid);
+            var sp=document.getElementById(to_be);
+            if (drugidvar.checked==true){
+                sp.value=drugcost;
+            };
         };
-    };
-    
-    //Search Engine Code
-    const searchInput = document.getElementById('searchBar');
-    const itemTable = document.getElementById('itemTable');
-    const rows = itemTable.getElementsByTagName('tr');
+        
+        //Search Engine Code
+        const searchInputMember = document.getElementById('searchBarMember');
+        const itemTableM = document.getElementById('itemTableMember');
+        const rowsM = itemTableM.getElementsByTagName('tr');
 
-    searchInput.addEventListener('input', filterItems);
+        searchInputMember.addEventListener('input', filterItemsM);
 
-    function filterItems() {
-        const searchTerm = searchInput.value.toLowerCase();
-        for (let i = 1; i < rows.length; i++) { // Start the loop from index 1 to skip the header row
-            const row = rows[i];
-            const cells = row.getElementsByTagName('td');
-            let matchFound = false;
+        function filterItemsM() {
+            const searchTerm = searchInputMember.value.toLowerCase();
+            for (let i = 1; i < rowsM.length; i++) { // Start the loop from index 1 to skip the header row
+                const row = rowsM[i];
+                const cells = row.getElementsByTagName('td');
+                let matchFound = false;
 
-            for (const cell of cells) {
-                const cellValue = cell.textContent.toLowerCase();
-                if (cellValue.includes(searchTerm)) {
-                    matchFound = true;
-                    break;
+                for (const cell of cells) {
+                    const cellValue = cell.textContent.toLowerCase();
+                    if (cellValue.includes(searchTerm)) {
+                        matchFound = true;
+                        break;
+                    }
+                }
+
+                if (matchFound) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
                 }
             }
+        };
+        //Search Engine Code2
+        const searchInput2 = document.getElementById('searchBar2');
+        const itemTable2 = document.getElementById('itemTable2');
+        const rows2 = itemTable2.getElementsByTagName('tr');
 
-            if (matchFound) {
-                row.style.display = 'table-row';
-            } else {
-                row.style.display = 'none';
-            }
-        }
-    };
-    //Suppliers Table
-    const stocks_table = document.getElementById('stocks_table');
-    const rows2 = stocks_table.getElementsByTagName('tr');
+        searchInput2.addEventListener('input', filterItems2);
 
-    searchInput.addEventListener('input', filterItems2);
+        function filterItems2() {
+            const searchTerm = searchInput2.value.toLowerCase();
+            for (let i = 1; i < rows2.length; i++) { // Start the loop from index 1 to skip the header row
+                const row = rows2[i];
+                const cells = row.getElementsByTagName('td');
+                let matchFound = false;
 
-    function filterItems2() {
-        const searchTerm = searchInput.value.toLowerCase();
-        for (let i = 1; i < rows2.length; i++) { // Start the loop from index 1 to skip the header row
-            const row = rows2[i];
-            const cells = row.getElementsByTagName('td');
-            let matchFound = false;
+                for (const cell of cells) {
+                    const cellValue = cell.textContent.toLowerCase();
+                    if (cellValue.includes(searchTerm)) {
+                        matchFound = true;
+                        break;
+                    }
+                }
 
-            for (const cell of cells) {
-                const cellValue = cell.textContent.toLowerCase();
-                if (cellValue.includes(searchTerm)) {
-                    matchFound = true;
-                    break;
+                if (matchFound) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
                 }
             }
+        };
+        //Search Engine Code
+        const searchInput = document.getElementById('searchBar1');
+        const itemTable = document.getElementById('itemTable');
+        const rows = itemTable.getElementsByTagName('tr');
 
-            if (matchFound) {
-                row.style.display = 'table-row';
-            } else {
-                row.style.display = 'none';
+        searchInput.addEventListener('input', filterItems);
+
+        function filterItems() {
+            const searchTerm = searchInput.value.toLowerCase();
+            for (let i = 1; i < rows.length; i++) { // Start the loop from index 1 to skip the header row
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let matchFound = false;
+
+                for (const cell of cells) {
+                    const cellValue = cell.textContent.toLowerCase();
+                    if (cellValue.includes(searchTerm)) {
+                        matchFound = true;
+                        break;
+                    }
+                }
+
+                if (matchFound) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
             }
-        }
-    };
-    //Appear containers
-    function appear(radio1,cont1,cont2,cont3,cont4,cont5,cont6,cont7){
-        check1=document.getElementById(radio1);
-        if (check1.checked==true){
-            cont1=document.getElementById(cont1);
-            cont1.style.display='block';
-            cont2=document.getElementById(cont2);
-            cont2.style.display='none';
-            cont3=document.getElementById(cont3);
-            cont3.style.display='none';
-            cont4=document.getElementById(cont4);
-            cont4.style.display='none';
-            cont5=document.getElementById(cont5);
-            cont5.style.display='none';
-            cont6=document.getElementById(cont6);
-            cont6.style.display='none';
-            cont7=document.getElementById(cont7);
-            cont7.style.display='none';
-            cont8=document.getElementById(cont8);
-            cont8.style.display='none';
+        };
+        
+        //Search Engine Code3
+        const searchInput3 = document.getElementById('searchBar3');
+        const itemTable3 = document.getElementById('itemTable3');
+        const rows3 = itemTable3.getElementsByTagName('tr');
+
+        searchInput3.addEventListener('input', filterItems3);
+
+        function filterItems3() {
+            const searchTerm = searchInput3.value.toLowerCase();
+            for (let i = 1; i < rows3.length; i++) { // Start the loop from index 1 to skip the header row
+                const row = rows3[i];
+                const cells = row.getElementsByTagName('td');
+                let matchFound = false;
+
+                for (const cell of cells) {
+                    const cellValue = cell.textContent.toLowerCase();
+                    if (cellValue.includes(searchTerm)) {
+                        matchFound = true;
+                        break;
+                    }
+                }
+
+                if (matchFound) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        };
+        //Appear containers
+        function appear(radio1,cont1){
+            var tables=['AFFECT_BIRDS_TABLE','ADD_SOURCE_T','cont1','cont2','cont3','cont4','cont5','cont6','cont7','cont8','cont9','cont10','cont11','cont12'];
+            var check1=document.getElementById(radio1);
+                if (check1.checked==true){
+                    for(let i=0;i<tables.length;i++){
+                        
+                        var table = document.getElementById(tables[i]);
+                        var contId=document.getElementById(cont1);
+                        table.style.display='none';
+                        contId.style.display='block';
+                }
+            }
+                else{
+                    for(let i=0;i<tables.length;i++){
+                        var table = document.getElementById(tables[i]);
+                        var contId=document.getElementById(cont1);
+                        table.style.display='none';
+                        contId.style.display='none';
+                }
+            }
             
         }
-        else{
-            cont1=document.getElementById(cont1);
-            cont1.style.display='none';
-            cont2=document.getElementById(cont2);
-            cont2.style.display='none';
-            cont3=document.getElementById(cont3);
-            cont3.style.display='none';
-            cont4=document.getElementById(cont4);
-            cont4.style.display='none';
-            cont5=document.getElementById(cont5);
-            cont5.style.display='none';
-            cont6=document.getElementById(cont6);
-            cont6.style.display='none';
-            cont7=document.getElementById(cont7);
-            cont7.style.display='none';
-            cont8=document.getElementById(cont8);
-            cont8.style.display='none';
-        }
-    };
-</script>
-
-
+        
+    </script>
 </body>
 </html>

@@ -260,6 +260,7 @@
                 <th>PRODUCT ID</th>
                 <th>PRODUCT NAME</th>
                 <th>CATEGORY</th>
+                <th>SOURCE</th>
                 <th>QUANTITY</th>
                 <th>UNIT PRICE</th>
                 <th>Order:</th>
@@ -277,6 +278,7 @@
                 <td>{{product[0]}}</td>
                 <td>{{product[1]}}</td>
                 <td>{{product[5]}}</td>
+                <td>{{product[6]}}</td>
                 <td class="each-quantity" id="F{{product[0]}}" >{{product[4]}}</td>
                 <td>Ksh <span class="price-label"  id="{{product[3]}}" >
                     {{product[3]}}
@@ -285,9 +287,10 @@
                 
                 <td><span onclick="minus_cart('{{product[0]}}','{{product[3]}}')" class="minus" style="font-size: 50px;color:red;" >- </span>
                 
-                <input onchange="Add_to_total('{{product[0]}}','{{product[3]}}','F{{product[0]}}')" class="num-input" name="{{product[0]}}" type="number" id="{{product[0]}}" style="font-size:30px;border:none;border-bottom:1px solid black;width:2cm;" value="0" >
+                <input step="any" onchange="Add_to_total('{{product[0]}}','{{product[3]}}','F{{product[0]}}')" class="num-input" name="order{{product[0]}}" type="number" id="{{product[0]}}" style="font-size:30px;border:none;border-bottom:1px solid black;width:2cm;" value="0" >
                      
-                     <span onclick="add_cart('{{product[0]}}','{{product[3]}}','F{{product[0]}}')" class="plus" style="font-size: 50px;color:rgb(0, 255, 0);" > +</span></td>
+                     <span onclick="add_cart('{{product[0]}}','{{product[3]}}','F{{product[0]}}')" class="plus" style="font-size: 50px;color:rgb(0, 255, 0);" > +</span>
+                <input type="number" style="font-size:30px;border:none;border-bottom:1px solid black;width:2cm;" class="num-input2" name="rem" id="rem{{product[0]}}" value="0" placeholder="Remainder"  ></td>
             </tr>{%endfor%}
             
         </table>
@@ -306,7 +309,7 @@
                 <button style="background:rgb(89, 6, 92)" name="submit" value="partial_pay">PARTIAL PAY</button>
             </div>
         </div>
-            </form>
+            </form><br><br><br><br>
         </div>
         
     
@@ -372,9 +375,9 @@
     <script>
         // Function to limit AMOUNT TO PAY
         const limitedInput = document.getElementById('Amount_Paid');
-
-limitedInput.addEventListener('input', function() {
-    if (limitedInput.value > TotalCost.value) {
+        
+        limitedInput.addEventListener('input', function() {
+    if (Number(limitedInput.value) > Number(TotalCost.value)) {
         limitedInput.value = TotalCost.value;
         alert('USE "BUY NOW"');
     }
@@ -444,6 +447,7 @@ limitedInput.addEventListener('input', function() {
        };
 //Input function Order
 const numInputs = document.querySelectorAll('.num-input');
+const numInputs2=document.querySelectorAll('.num-input2');
         const totalCostInput = document.getElementById('TotalCost');
         const totalCostDisplay = document.getElementById('TotalCost2');
         const priceLabels = document.querySelectorAll('.price-label');
@@ -455,13 +459,19 @@ const numInputs = document.querySelectorAll('.num-input');
                
             });
         });
+        numInputs2.forEach((input, index) => {
+            input.addEventListener('input', () => {
+                calculateTotalCost2(index);
+               
+            });
+        });
 
         function calculateTotalCost(index) {
             let totalCost = 0;
             numInputs.forEach((input, i) => {
-                const quantity = parseInt(input.value);
-                const price = parseFloat(priceLabels[i].textContent);
-                const remainingQuantity = parseInt(eachQuantities[i].textContent);
+                const quantity = Number(input.value);
+                const price = Number(priceLabels[i].textContent);
+                const remainingQuantity = Number(eachQuantities[i].textContent);
                 if (!isNaN(quantity)) {
                     if (quantity > remainingQuantity) {
                         alert("Max quantity reached");
@@ -470,6 +480,29 @@ const numInputs = document.querySelectorAll('.num-input');
                     }
                     else{
                     totalCost += quantity * price;
+                    }
+                }
+            });
+            totalCostInput.value = totalCost.toFixed(2);
+            
+            totalCostDisplay.textContent = `Ksh ${totalCost.toFixed(2)}`;
+        };
+        //eggs
+        function calculateTotalCost2(index) {
+            
+            let totalCost = 0;
+            numInputs2.forEach((input, i) => {
+                const quantity = Number(input.value);
+                const price = Number(priceLabels[i].textContent);
+                const remainingQuantity = Number(eachQuantities[i].textContent);
+                if (!isNaN(quantity)) {
+                    if (quantity > remainingQuantity) {
+                        alert("Max quantity reached");
+                        input.value = remainingQuantity;
+                        totalCost += (remainingQuantity * price)/30;
+                    }
+                    else{
+                    totalCost += (quantity * price)/30;
                     }
                 }
             });

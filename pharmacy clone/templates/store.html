@@ -192,7 +192,7 @@
         body table{
             margin:1cm;
         }
-        #Labeltable1,#Labeltable2 {
+        #Labeltable1,#Labeltable2,#Labeltable3,.sort_by {
             padding: 8px 16px;
             margin:1cm;
             border: 1px solid #44aadd;
@@ -203,7 +203,7 @@
         }
 
         /* Hover effect for the label */
-        #Labeltable1:hover,#Labeltable2:hover {
+        #Labeltable1:hover,#Labeltable2:hover,#Labeltable3:hover,.sort_by:hover {
             background-color: #56c483;
             border-color: #56c483;
         }
@@ -225,11 +225,13 @@
         </ul>
     </div>
 
-    <input style="display:none;" type="radio" name="labels" id="table1" onclick="toggleTable('itemTable','Labeltable1', 'stocks_table','Labeltable2')">
-    <input style="display:none;" type="radio" name="labels" id="table2" onclick="toggleTable('stocks_table','Labeltable2', 'itemTable','Labeltable1')">
+    <input style="display:none;" type="radio" name="labels" id="table1" onclick="toggleTable('itemTable','Labeltable1', 'stocks_table','Labeltable2','otherTable','Labeltable3')">
+    <input style="display:none;" type="radio" name="labels" id="table2" onclick="toggleTable('stocks_table','Labeltable2', 'itemTable','Labeltable1','otherTable','Labeltable3')">
+    <input style="display:none;" type="radio" name="labels" id="table3" onclick="toggleTable('otherTable','Labeltable3','stocks_table','Labeltable2', 'itemTable','Labeltable1')">
     
     <label style="background:#56c483;" class="LabelTable" for="table1" id="Labeltable1" >Products Table</label>
-    <label class="LabelTable" for="table2" id="Labeltable2" >STOCK TABLE</label>
+    <label class="LabelTable" for="table2" id="Labeltable2" >POULTRY HARVEST</label>
+    <label class="LabelTable" for="table3" id="Labeltable3" >OTHER</label>
 
 
 <form  id="cont4" method="post">
@@ -249,14 +251,16 @@
             
         </tr>
         {%for product in products %}
+        
             <!-- Make Red if out of stock -->
-    {%if product[4]< 20 %}
+    {%if product[2] =='NO'%}
+    <tr style="color:gray;" >
+    {%elif product[4]< 20 %}
     <tr style="color:rgb(205, 0, 102);" >
+        
     {%elif product[4] < 1 %}
     <tr style="color:red" >
     
-    {%elif product[2] =='NO'%}
-    <tr style="color:gray;" >
     {%else%}
     <tr>
     {%endif%}
@@ -272,8 +276,135 @@
     
         {%endfor%}
     </table>
+<span style="display:none;width:100%;"  id="stocks_table">
+    <input style="display:none;" onclick="appear('table1.','stocks_table1','table2.','stocks_table2','table3.','stocks_table3')" type="radio" name="table." id="table1.">
+    <input style="display:none;" onclick="appear('table2.','stocks_table2','table1.','stocks_table1','table3.','stocks_table3')" type="radio" name="table." id="table2.">
+    <input style="display:none;" onclick="appear('table3.','stocks_table3','table2.','stocks_table2','table1.','stocks_table1')" type="radio" name="table." id="table3.">
+    <label class="sort_by" for="table1.">DAY SUMMARY</label>
+    <label class="sort_by" for="table2.">ROOM SUMMARY</label>
+    <label class="sort_by" for="table3.">NAME SUMMARY</label>
+    <table id="stocks_table1" class="itemTable">
+        <tr>
+            <th>Check</th>
+            <th>STOCK ID</th>
+            <th>DATE</th>
+            <th>PRODUCT NAME</th>
+            <th>SOURCE</th>
+            <th>CATEGORY</th>
+            <th>QUANTITY</th>
+            <th>IN-STOCK</th>
+            <th>PERC</th>
+        </tr>
+        {%for stock in stockdataDesc%}
+        <!-- Specify POULTRY -->
+            {%for product in products%}
+                {%if product[0]==stock[1]%}
+                    {%if product[5]=='POULTRY' %}
 
-    <table style="display:none;" class="itemTable" id="stocks_table">
+        <tr>
+            <td> <input type="radio" name="stock" id="Stock{{stock[0]}}"> </td>
+            <td>{{stock[0]}}</td>
+            <td>{{stock[2]}}</td>
+            <td>{{product[1]}}</td>
+            <td>{{product[6]}}</td>
+            <td>{{product[5]}}</td>
+            <td>{{stock[3]}}</td>
+            <td>{{product[4]}}</td>
+            <td>{{stock[6]}}</td>
+            
+
+            
+        </tr>
+                    {%endif%}
+                {%endif%}
+            {%endfor%}
+        {%endfor%}
+        
+        
+        <!-- ... (other suppliers data rows) ... -->
+    </table>
+    <table style="display:none;" id="stocks_table2" class="itemTable">
+        <tr>
+            <th>Check</th>
+            <th>STOCK ID</th>
+            <th>DATE</th>
+            <th>PRODUCT NAME</th>
+            <th>SOURCE</th>
+            <th>CATEGORY</th>
+            <th>QUANTITY</th>
+            <th>IN-STOCK</th>
+            <th>PERCENTAGE</th>
+        </tr>
+        {%for stock in stockdataDesc%}
+        <!-- Specify POULTRY -->
+            {%for product in products%}
+                {%if product[0]==stock[1]%}
+                    {%if product[5]=='POULTRY' %}
+
+        <tr>
+            <td> <input type="radio" name="stock" id="Stock{{stock[0]}}"> </td>
+            <td>{{stock[0]}}</td>
+            <td>{{stock[2]}}</td>
+            <td>{{product[1]}}</td>
+            <td>{{product[6]}}</td>
+            <td>{{product[5]}}</td>
+            <td>{{stock[3]}}</td>
+            <td>{{product[4]}}</td>
+            <td>{{stock[6]}}</td>
+            
+
+            
+        </tr>
+                    {%endif%}
+                {%endif%}
+            {%endfor%}
+        {%endfor%}
+        
+        
+        <!-- ... (other suppliers data rows) ... -->
+    </table>
+    <table style="display:none;" id="stocks_table3" class="itemTable">
+        <tr>
+            <th>Check</th>
+            <th>STOCK ID</th>
+            <th>DATE</th>
+            <th>PRODUCT NAME</th>
+            <th>SOURCE</th>
+            <th>CATEGORY</th>
+            <th>QUANTITY</th>
+            <th>IN-STOCK</th>
+            <th>PERCENTAGE</th>
+        </tr>
+        {%for stock in stockdataDesc1%}
+        <!-- Specify POULTRY -->
+            {%for product in products%}
+                {%if product[0]==stock[1]%}
+                    {%if product[5]=='POULTRY' %}
+
+        <tr>
+            <td> <input type="radio" name="stock" id="Stock{{stock[0]}}"> </td>
+            <td>{{stock[0]}}</td>
+            <td>{{stock[2]}}</td>
+            <td>{{product[1]}}</td>
+            <td>{{product[6]}}</td>
+            <td>{{product[5]}}</td>
+            <td>{{stock[3]}}</td>
+            <td>{{product[4]}}</td>
+            <td>{{stock[6]}}</td>
+            
+
+            
+        </tr>
+                    {%endif%}
+                {%endif%}
+            {%endfor%}
+        {%endfor%}
+        
+        
+        <!-- ... (other suppliers data rows) ... -->
+    </table>
+    </span>
+    <table style="display:none;" class="itemTable" id="otherTable">
         <tr>
             <th>Check</th>
             <th>STOCK ID</th>
@@ -285,22 +416,27 @@
             <th>IN-STOCK</th>
         </tr>
         {%for stock in stockdataDesc%}
+        <!-- Specify POULTRY -->
+            {%for product in products%}
+                {%if product[0]==stock[1]%}
+                    {%if product[5] !='POULTRY' %}
+
         <tr>
             <td> <input type="radio" name="stock" id="Stock{{stock[0]}}"> </td>
             <td>{{stock[0]}}</td>
             <td>{{stock[2]}}</td>
-            {%for product in products%}
-            {%if product[0]==stock[1]%}
             <td>{{product[1]}}</td>
             <td>{{product[6]}}</td>
             <td>{{product[5]}}</td>
             <td>{{stock[3]}}</td>
             <td>{{product[4]}}</td>
-            {%endif%}
-            {%endfor%}
+            
 
             
         </tr>
+                    {%endif%}
+                {%endif%}
+            {%endfor%}
         {%endfor%}
         
         
@@ -315,17 +451,21 @@
 
 <script>
 //funcorder
-function toggleTable(showTableId,ColorLabelId, hideTableId,DiscolorLabelId) {
+function toggleTable(showTableId,ColorLabelId, hideTableId,DiscolorLabelId,hideTableId2,DiscolorLabelId2) {
     const showTable = document.getElementById(showTableId);
     const hideTable = document.getElementById(hideTableId);
     const ColorLabel = document.getElementById(ColorLabelId);
     const DiscolorLabel = document.getElementById(DiscolorLabelId);
+    const hideTable2 = document.getElementById(hideTableId2);
+    const DiscolorLabel2 = document.getElementById(DiscolorLabelId2);
     
-    if (showTable && hideTable) {
+    if (showTable && hideTable && hideTable2) {
         showTable.style.display = 'table';
         hideTable.style.display = 'none';
         ColorLabel.style.background='#56c483';
         DiscolorLabel.style.background='#44aadd';
+        hideTable2.style.display = 'none';
+        DiscolorLabel2.style.background='#44aadd';
     }
 }
 //end of func order
@@ -443,7 +583,7 @@ function sortTable(tableId, columnIndex) {
         check1=document.getElementById(radio1);
         if (check1.checked==true){
             cont1=document.getElementById(cont1);
-            cont1.style.display='block';
+            cont1.style.display='table';
             cont2=document.getElementById(cont2);
             cont2.style.display='none';
             cont3=document.getElementById(cont3);
@@ -479,24 +619,84 @@ function sortTable(tableId, columnIndex) {
             cont8.style.display='none';
         }
     };
-    function calculateSubtotals() {
-    const table = document.getElementById('stocks_table');
+
+    function calculategrandtotals() {
+    const table = document.getElementById('stocks_table1');
     const rows = Array.from(table.rows);
 
     let currentDate = null;
-    let subtotalInStock = 0;
-    let subtotalQuantity = 0;
+    let grandtotalInStock = 0;
+    let grandtotalQuantity = 0;
 
     for (let i = 1; i < rows.length; i++) {
         const row = rows[i];
         const dateCell = row.cells[2];
 
         if (dateCell.textContent !== currentDate) {
-            // If a new date is encountered, add a subtotal row
-            if (subtotalInStock > 0) {
-                const subtotalRow = table.insertRow(i);
-                const emptyCell = subtotalRow.insertCell(0);
+            // If a new date is encountered, add a grandtotal row
+            if (grandtotalInStock > 0) {
+                const grandtotalRow = table.insertRow(i);
+                const emptyCell = grandtotalRow.insertCell(0);
                 emptyCell.colSpan = 5; // Merge cells for consistency
+                const grandtotalCell = grandtotalRow.insertCell(1);
+                grandtotalCell.textContent = 'GrandTotal';
+                
+                const grandtotalQuantityCell = grandtotalRow.insertCell();
+                grandtotalQuantityCell.textContent = grandtotalQuantity;
+                const grandtotalInStockCell = grandtotalRow.insertCell();
+                grandtotalInStockCell.textContent = grandtotalInStock;
+
+                i++; // Move to the next row
+            }
+
+            currentDate = dateCell.textContent;
+            grandtotalInStock = 0;
+            grandtotalQuantity = 0;
+        }
+
+        const inStockCell = row.cells[7].textContent;
+        const quantityCell = row.cells[6].textContent;
+        grandtotalInStock += parseFloat(inStockCell);
+        grandtotalQuantity += parseFloat(quantityCell);
+    }
+
+    // Calculate grandtotal for the last group
+    if (grandtotalInStock > 0) {
+        const lastgrandtotalRow = table.insertRow(rows.length);
+        const emptyCell = lastgrandtotalRow.insertCell(0);
+        emptyCell.colSpan = 5;
+        const grandtotalCell = lastgrandtotalRow.insertCell(1);
+        grandtotalCell.textContent = 'GrandTotal';
+        const grandtotalQuantityCell = lastgrandtotalRow.insertCell();
+        grandtotalQuantityCell.textContent = grandtotalQuantity;
+        const grandtotalInStockCell = lastgrandtotalRow.insertCell();
+        grandtotalInStockCell.textContent = grandtotalInStock;
+    };
+};
+
+
+
+function calculatesubtotals_source() {
+    const table = document.getElementById('stocks_table2');
+    const rows = Array.from(table.rows);
+
+    let source = null;
+    let subtotalInStock = 0;
+    let subtotalQuantity = 0;
+    
+    // Create an array to store the rows and subtotals
+    const newRows = [];
+    
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const sourceCell = row.cells[4];
+        
+        if (sourceCell.textContent !== source) {
+            // If a new source is encountered, add a subtotal row
+            if (subtotalInStock > 0) {
+                const subtotalRow = document.createElement('tr');
+                const emptyCell = subtotalRow.insertCell(0);
+                emptyCell.colSpan = 5;
                 const subtotalCell = subtotalRow.insertCell(1);
                 subtotalCell.textContent = 'Subtotal';
                 
@@ -504,11 +704,11 @@ function sortTable(tableId, columnIndex) {
                 subtotalQuantityCell.textContent = subtotalQuantity;
                 const subtotalInStockCell = subtotalRow.insertCell();
                 subtotalInStockCell.textContent = subtotalInStock;
-
-                i++; // Move to the next row
+                
+                newRows.push(subtotalRow);
             }
 
-            currentDate = dateCell.textContent;
+            source = sourceCell.textContent;
             subtotalInStock = 0;
             subtotalQuantity = 0;
         }
@@ -517,23 +717,76 @@ function sortTable(tableId, columnIndex) {
         const quantityCell = row.cells[6].textContent;
         subtotalInStock += parseFloat(inStockCell);
         subtotalQuantity += parseFloat(quantityCell);
-    }
 
-    // Calculate subtotal for the last group
-    if (subtotalInStock > 0) {
-        const lastSubtotalRow = table.insertRow(rows.length);
-        const emptyCell = lastSubtotalRow.insertCell(0);
-        emptyCell.colSpan = 5;
-        const subtotalCell = lastSubtotalRow.insertCell(1);
-        subtotalCell.textContent = 'Subtotal';
-        const subtotalQuantityCell = lastSubtotalRow.insertCell();
-        subtotalQuantityCell.textContent = subtotalQuantity;
-        const subtotalInStockCell = lastSubtotalRow.insertCell();
-        subtotalInStockCell.textContent = subtotalInStock;
+        // Add the current row to the new rows array
+        newRows.push(row);
     }
-}
+    
+    // Clear the table and add the new rows
+    while (table.rows.length > 1) {
+        table.deleteRow(1);
+    }
+    newRows.forEach(newRow => table.appendChild(newRow));
+};
+function calculatesubtotals_product_name() {
+    const table = document.getElementById('stocks_table3');
+    const rows = Array.from(table.rows);
 
-window.onload = calculateSubtotals;
+    let source = null;
+    let subtotalInStock = 0;
+    let subtotalQuantity = 0;
+    
+    // Create an array to store the rows and subtotals
+    const newRows = [];
+    
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const sourceCell = row.cells[3];
+        
+        if (sourceCell.textContent !== source) {
+            // If a new source is encountered, add a subtotal row
+            if (subtotalInStock > 0) {
+                const subtotalRow = document.createElement('tr');
+                const emptyCell = subtotalRow.insertCell(0);
+                emptyCell.colSpan = 5;
+                const subtotalCell = subtotalRow.insertCell(1);
+                subtotalCell.textContent = 'Subtotal';
+                
+                const subtotalQuantityCell = subtotalRow.insertCell();
+                subtotalQuantityCell.textContent = subtotalQuantity;
+                const subtotalInStockCell = subtotalRow.insertCell();
+                subtotalInStockCell.textContent = subtotalInStock;
+                
+                newRows.push(subtotalRow);
+            }
+
+            source = sourceCell.textContent;
+            subtotalInStock = 0;
+            subtotalQuantity = 0;
+        }
+
+        const inStockCell = row.cells[7].textContent;
+        const quantityCell = row.cells[6].textContent;
+        subtotalInStock += parseFloat(inStockCell);
+        subtotalQuantity += parseFloat(quantityCell);
+
+        // Add the current row to the new rows array
+        newRows.push(row);
+    }
+    
+    // Clear the table and add the new rows
+    while (table.rows.length > 1) {
+        table.deleteRow(1);
+    }
+    newRows.forEach(newRow => table.appendChild(newRow));
+};
+
+
+calculategrandtotals();
+calculatesubtotals_source();
+calculatesubtotals_product_name();
+
+
 </script>
 
 
