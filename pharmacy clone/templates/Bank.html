@@ -282,8 +282,7 @@
                 </div> 
             {%endif%}
         {%endfor%}
-    {%endif%}
-    {% if b[6]=='EXPENSE' %}
+    {% elif b[6]=='EXPENSE' %}
         {%for expense in expenditure%}
             {%if expense[0]==b[3]%}
             <div style="display:none;" class="modal" id="form{{b[0]}}">
@@ -311,8 +310,7 @@
             </div>
             {%endif%}
         {%endfor%}
-    {%endif%}
-    {%if b[6]=='TRANSACTION' %}
+    {%elif b[6]=='TRANSACTION' %}
     {%for transaction in transactions%}
     <div style="display:none;" class="modal" id="form{{b[0]}}">
         <div class="modal-content">
@@ -336,6 +334,17 @@
         </div>
     </div>
     {%endfor%}
+    {%else%}
+    <div style="display:none;" class="modal" id="form{{b[0]}}">
+        <div class="modal-content">
+            <form class="modal-form">
+                <h1> <label for="pop{{b[0]}}">DEBIT VIEW</label> </h1>
+                 <h4>CASHIER ID : {{b[6]}} </h4>
+                 <h4>DATE : {{b[7]}}</h4>
+                 <h4> AMOUNT : {{b[2]}} </h4>
+            </form>
+        </div>
+    </div>
     {%endif%}
 {%endfor%}
 

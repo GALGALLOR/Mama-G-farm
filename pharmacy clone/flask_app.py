@@ -14,7 +14,7 @@ app.config['MYSQL_DB']='PharmacyBG$default'"""
 app.config['MYSQL_HOST']='localhost'
 app.config['MYSQL_USER']='root'
 app.config['MYSQL_PASSWORD']='GALGALLO10'
-app.config['MYSQL_DB']='PHARMACY_BORU'
+app.config['MYSQL_DB']='MAMA_G'
 
 app.secret_key='mimi'
 
@@ -87,16 +87,18 @@ def order():
                 Transaction_id = int(request.form['Tid'])
                 cursor.execute(f'UPDATE TRANSACTION SET PARTIAL_PAY="NO" WHERE TRANSACTION_ID={Transaction_id}')
                 mydb.connection.commit()
+
                 return redirect(url_for('order'))
             #get each itemID and its Quantity bought
             cursor=mydb.connection.cursor()
-            cursor.execute('SELECT * from STOCK_TABLE')
+            cursor.execute('SELECT * from PRODUCTS WHERE STATUS="YES"')
             counter=cursor.fetchall()
             Sold_items=[]
             for num in counter:
+                item_='order'+str(num[0])
                 sold_item=[]
                 sold_item.append(num[0])
-                sold_item.append(str(request.form[str(num[0])]))
+                sold_item.append(str(request.form[item_]))
                 Sold_items.append(sold_item)
                 #stockID,Quantity
             #update sales_table,rem_stock in stock,transaction,transaction_items
@@ -116,10 +118,7 @@ def order():
             cursor.execute('SELECT TRANSACTION_ID FROM TRANSACTION')
             last_transaction_id=cursor.fetchall()[-1][0]
             last_transaction_id=int(last_transaction_id)+1
-            #Get last Sales_ID
-            cursor=mydb.connection.cursor()
-            cursor.execute('SELECT SALES_ID FROM SALES')
-            last_sales_id=int(cursor.fetchall()[-1][0])
+            
             
             sale_date=str(datetime.date.today())
             total_cost=0
@@ -127,23 +126,25 @@ def order():
             cursor=mydb.connection.cursor()
             cursor.execute('SELECT * FROM STOCK_TABLE')
             last_stocks_data=cursor.fetchall()
+            #nanyuki-data
+            cursor.execute('SELECT * FROM PRODUCTS WHERE STATUS="YES" ORDER BY PRODUCT_ID DESC')
+            products=cursor.fetchall()
             #Get Product cost for each ID
             
             for stockID in Sold_items:
                 if int(stockID[1]) == 0:
                     pass
                 else:
+                    stockID[0]=str(stockID[0])                   
                     cursor=mydb.connection.cursor()
-                    cursor.execute('SELECT PRODUCT_ID FROM STOCK_TABLE WHERE STOCK_ID='+str(stockID[0]))
-                    prod_id=cursor.fetchall()[0][0]
-                    cursor=mydb.connection.cursor()
-                    cursor.execute('SELECT * FROM DRUG_DETAILS WHERE DRUG_ID='+str(prod_id))
-                    cost_drug_name=cursor.fetchall()
-                    cost=cost_drug_name[0][7]
-                    drug_name=cost_drug_name[0][1]
+                    cursor.execute('SELECT * FROM PRODUCTS WHERE PRODUCT_ID='+ stockID[0]+' AND STATUS="YES"')
+                    cost_product_name=cursor.fetchall()
+                    print(' product is ',cost_product_name)
+                    cost=cost_product_name[0][3]
+                    product_name=str(cost_product_name[0][1])
                     #Get subtotal
                     subtotal=int(cost)*int(stockID[1])
-                    total_cost=total_cost+int(subtotal)
+                    total_cost= total_cost + int(subtotal)
                     #Add to Transaction_Items
                     #Get last Transaction_item_id
                     cursor=mydb.connection.cursor()
@@ -152,26 +153,19 @@ def order():
                     print(last_Titem_id)
                     last_Titem_id=int(last_Titem_id)+1
                     #insert into Transaction_item_id
-                    cursor.execute('INSERT INTO TRANSACTION_ITEMS(TRANSACTION_ITEM_ID,TRANSACTION_ID,QUANTITY,UNIT_PRICE,PRODUCT_NAME,SUBTOTAL)VALUES(%s,%s,%s,%s,%s,%s)',(last_Titem_id,last_transaction_id,stockID[1],cost,drug_name,subtotal))
+                    cursor.execute('INSERT INTO TRANSACTION_ITEMS(TRANSACTION_ITEM_ID,TRANSACTION_ID,QUANTITY,UNIT_PRICE,PRODUCT_NAME,SUBTOTAL)VALUES(%s,%s,%s,%s,%s,%s)',(last_Titem_id,last_transaction_id,stockID[1],cost,product_name,subtotal))
                     mydb.connection.commit()
                     #insert into SALES
-                    last_sales_id=int(last_sales_id)+1
-                    cursor.execute('INSERT INTO SALES(SALES_ID,STOCK_ID,SALES_DATE,QUANTITY,UNIT_PRICE,TOTAL_AMOUNT)VALUES(%s,%s,%s,%s,%s,%s)',(last_sales_id,stockID[0],sale_date,stockID[1],cost,subtotal))
-                    mydb.connection.commit()
+                    sale_date=datetime.date.today()
+                    print(sale_date)
+                    
 
-                    #Submit into the account
-                    cursor.execute('SELECT * from ACCOUNT')
-                    Bank_Account=cursor.fetchall()
-                    Bank_balance=int(Bank_Account[-1][5])+subtotal
-                    last_bank_id=int(Bank_Account[-1][0])+1
-                    cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,SALE_ID,AMOUNT_IN,BALANCE,DATE,EXPENSE_ID,AMOUNT_OUT,DEBIT)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(last_bank_id,last_sales_id,subtotal,Bank_balance,sale_date,0,0," "))
-                    mydb.connection.commit()
+                    
 
-                    #deduct from stocks_table[rem_stock]
-                    cursor.execute('SELECT REM_STOCK FROM STOCK_TABLE WHERE STOCK_ID='+str(stockID[0]))
-                    rem_stock=int(cursor.fetchall()[0][0])
+                    #deduct from Inventory in Products
+                    rem_stock=int(cost_product_name[0][4])
                     rem_stock=rem_stock-int(stockID[1])
-                    cursor.execute(f'UPDATE STOCK_TABLE SET REM_STOCK={rem_stock} WHERE STOCK_ID={stockID[0]}')
+                    cursor.execute(f'UPDATE PRODUCTS SET QUANTITY={rem_stock} WHERE PRODUCT_ID={stockID[0]}')
                     mydb.connection.commit()
 
             #insert transaction
@@ -190,6 +184,15 @@ def order():
                 id_number=str(session['id'])
                 cursor.execute('INSERT INTO TRANSACTION(TRANSACTION_ID,CASHIER_ID,SALE_DATE,TOTAL_SALES,PARTIAL_PAY)VALUES(%s,%s,%s,%s,%s)',(last_transaction_id,id_number,sale_date,total_cost,'NO'))
                 mydb.connection.commit()
+            #Submit into the account
+            #Find CATEGORY
+            
+            cursor.execute('SELECT * from ACCOUNT ORDER BY BANK_TRANSACTION_ID DESC')
+            Bank_Account=cursor.fetchall()
+            Bank_balance=int(Bank_Account[0][5])+subtotal
+            last_bank_id=int(Bank_Account[0][0])+1
+            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,TRANSACTION_ID,AMOUNT_IN,BALANCE,DATE,EXPENSE_ID,AMOUNT_OUT,MODE,CATEGORY)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(last_bank_id,last_transaction_id,subtotal,Bank_balance,sale_date,0,0,"TRANSACTION",''))
+            mydb.connection.commit()
             
             
             return redirect(url_for('order'))
@@ -208,12 +211,12 @@ def order():
     past_transactions=cursor.fetchall()
     cursor.execute('SELECT * FROM TRANSACTION_ITEMS')
     past_transaction_items=cursor.fetchall()
-    #list Down DrugDetails & stock
-    cursor.execute('SELECT * FROM DRUG_DETAILS')
-    drug_details=cursor.fetchall()
+    #list Down products & stock
+    cursor.execute('SELECT * FROM PRODUCTS WHERE STATUS="YES" ORDER BY PRODUCT_ID DESC')
+    products=cursor.fetchall()
     
-    cursor.execute('SELECT * FROM STOCK_TABLE')
-    stocks=cursor.fetchall()
+    '''cursor.execute('SELECT * FROM STOCK_TABLE')
+    stocks=cursor.fetchall()'''
     #set expiry dates
     today=datetime.date.today()
     year=datetime.date.today().year
@@ -226,8 +229,10 @@ def order():
         expiry_range=datetime.date(year,month,date)
     except:
         expiry_range=datetime.date(year,month,25)
+    
+    user=session['fullname']
 
-    return render_template('order2.html',partial_pay_data=partial_pay_data,stocks=stocks,drug_details=drug_details, past_transaction_items=past_transaction_items,past_transactions=past_transactions,today=today,expiry_range=expiry_range)
+    return render_template('order2.html',partial_pay_data=partial_pay_data,products=products, past_transaction_items=past_transaction_items,past_transactions=past_transactions,today=today,user=user)
 
 @app.route('/products' ,methods=['POST','GET'] )
 def products():
@@ -235,10 +240,12 @@ def products():
 
         #date
         today=datetime.date.today()
-        #drug details
+        #product details
         cursor=mydb.connection.cursor()
-        cursor.execute('SELECT * FROM DRUG_DETAILS')
-        drug_details=cursor.fetchall()
+        cursor.execute('SELECT * FROM PRODUCTS ORDER BY STATUS DESC,PRODUCT_ID DESC')
+        products=cursor.fetchall()
+        cursor.execute('SELECT * FROM PRODUCTS WHERE STATUS="YES" ORDER BY PRODUCT_ID DESC')
+        products_active=cursor.fetchall()
         #Finance information
         cursor.execute('SELECT * FROM ACCOUNT ORDER BY BANK_TRANSACTION_ID DESC')
         bank_data=cursor.fetchall()
@@ -255,11 +262,7 @@ def products():
         stockdata=cursor.fetchall()
         cursor.execute('SELECT * FROM STOCK_TABLE ORDER BY STOCK_ID DESC')
         stockdataDesc=cursor.fetchall()
-        #suppliers
-        cursor.execute('SELECT * FROM SUPPLIERS ORDER BY SUPPLIER_ID DESC')
-        suppliers=cursor.fetchall()
-        cursor.execute('SELECT * FROM SUPPLIERS')
-        suppliersNew=cursor.fetchall()
+        
         #get staff data
         cursor.execute('SELECT * FROM USERS')
         users=cursor.fetchall()
@@ -293,124 +296,140 @@ def products():
             submit=request.form['submit']
             if submit=='restock':
                 staffId=session['id']
-                drugId=request.form['drugId']
-                drugQuantity=request.form['Quantity']
-                drugBP=request.form['drugBP']
-                drugSP=request.form['drugSP']
-                drug_ExpiryDate=request.form['drug_ExpiryDate']
-                stock_id=int(stockdata[-1][0])+1
-                drug_supplier=request.form['supplier']
+                productId=request.form['productId']
+                productQuantity=int(request.form['Quantity'])
+                initial_Q=productQuantity
+                
+                productBP=request.form['productBP']
+                productSP=request.form['productSP']
+
+                try:
+                    cursor.execute('SELECT * FROM PRODUCTS WHERE PRODUCT_ID='+str(productId))
+                    sources=cursor.fetchall()[0]
+                    product_name=sources[1]
+                    cursor.execute('SELECT * FROM PRODUCTS WHERE PRODUCT_NAME="'+str(sources[6])+'" AND STATUS="YES" ORDER BY PRODUCT_ID DESC')
+                    population1=cursor.fetchall()
+                    population=population1[0][4]
+                    if 'trays' in product_name:
+                        percentage=(30*productQuantity)*100/int(population)
+                    elif 'TRAYS' in product_name:
+                        percentage=(30*productQuantity)*100/int(population)
+                    else:
+                        percentage=productQuantity*100/int(population)
+                except:
+                    population=0
+                    percentage=0
+
                 today=datetime.date.today()
-                xxx=drug_ExpiryDate.split('-')
-                x=datetime.date(int(xxx[0]),int(xxx[1]),int(xxx[2]))
-                print(x)
-                if today>x:
-                    msg='The drug is already expired'
-                    print(msg)
-                    #correction 4/8/2023
-                    cursor.execute('INSERT INTO STOCK_TABLE(STOCK_ID,PRODUCT_ID,SUPPLIER_ID,STOCK_DATE,EXPIRY_DATE,QUANTITY,STAFF_ID,BP,REM_STOCK)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(stock_id,drugId,drug_supplier,today,drug_ExpiryDate,drugQuantity,staffId,drugBP,drugQuantity))
-                    mydb.connection.commit()
-                    #update SellingPrice
-                    cursor.execute(f'UPDATE DRUG_DETAILS SET COST={drugSP} WHERE DRUG_ID={drugId}')
-                    mydb.connection.commit()
+                
+                #correction 4/8/2023
+                #fetch today's restocks
+                cursor.execute('SELECT * FROM STOCK_TABLE WHERE STOCK_DATE="'+str(today)+'"')
+                stocks_today=cursor.fetchall()
+                
+                present='no'
+                for stock_today in stocks_today:
+                    if int(stock_today[1])==int(productId):
+                        present='yes'
+                        quantity=int(stock_today[3]) + int(productQuantity)
+                        
+                    else:
+                        pass
+                print(present)
+                #update SellingPrice & Quantity
+                for product in products:
+                    if int(product[0])==int(productId):
+                        category=product[5]
+                        NewproductQuantity=int(productQuantity)+int(product[4])
+                        
+                cursor.execute(f'UPDATE PRODUCTS SET COST={productSP},QUANTITY={NewproductQuantity} WHERE PRODUCT_ID={productId}')
+                mydb.connection.commit()
+                stock_id=int(stockdataDesc[0][0])+1
+                cursor.execute('INSERT INTO STOCK_TABLE(STOCK_ID,PRODUCT_ID,STOCK_DATE,QUANTITY,STAFF_ID,BP,PERCENTAGE)VALUES(%s,%s,%s,%s,%s,%s,%s)',(stock_id,productId,today,productQuantity,staffId,productBP,percentage))
+                mydb.connection.commit()
+                # Remove money from the account
+                subtotal=int(productBP)*int(initial_Q)
+                bank_transaction_id=(bank_data[0][0])+1
+                bank_balance=(bank_data[0][5])-subtotal
+                expenditure_id=int(expenditure[0][0])+1
+                if subtotal==0:
+                    pass
                 else:
-                    #correction 4/8/2023
-                    cursor.execute('INSERT INTO STOCK_TABLE(STOCK_ID,PRODUCT_ID,SUPPLIER_ID,STOCK_DATE,EXPIRY_DATE,QUANTITY,STAFF_ID,BP,REM_STOCK)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(stock_id,drugId,drug_supplier,today,drug_ExpiryDate,drugQuantity,staffId,drugBP,drugQuantity))
-                    mydb.connection.commit()
-                    #update SellingPrice
-                    cursor.execute(f'UPDATE DRUG_DETAILS SET COST={drugSP} WHERE DRUG_ID={drugId}')
+                    cashier_id=session['id']
+                    cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL,CASHIER_ID,STOCK_ID)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,today,'RESTOCK',' ','','',initial_Q,productBP,0,0,subtotal,cashier_id,stock_id))
                     mydb.connection.commit()
 
-                    # Remove money from the account
-                    subtotal=int(drugBP)*int(drugQuantity)
-                    bank_transaction_id=(bank_data[0][0])+1
-                    bank_balance=(bank_data[0][5])-subtotal
-                    expenditure_id=int(expenditure[0][0])+1
-                    cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,today,'RESTOCK',' ','','',drugQuantity,drugBP,0,0,subtotal))
-                    mydb.connection.commit()
-
-                    cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,SALE_ID,AMOUNT_IN,DEBIT)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,expenditure_id,subtotal,bank_balance,today,0,0," "))
-                    mydb.connection.commit()
-                    
-
-            elif submit=='addNewDrug':
-                DrugId=int(drug_details[-1][0])+1
-                DrugName=request.form['drugName']
-                DrugCategory=request.form['drugCategory']
-                DrugBrand=request.form['drugBrand']
-                DrugDosage=request.form['dosage']
-                DrugStrength=request.form['drugStrength']
-                DrugCost=request.form['drugCost']
-                mode=request.form['mode']
+                    cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,MODE,CATEGORY)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,stock_id,subtotal,bank_balance,today,0,0,"RESTOCK",category))
+                    mydb.connection.commit()           
+                
+                
+            
+            elif submit=='addNewProduct':
+                ProductId=int(products[0][0])+1
+                ProductName=request.form['productName']
+                Category=request.form['category']
+                ProductCost=request.form['productCost']
+                productQuantity=0
+                source=request.form['source']
                 presence='no'
-                for drugs in drug_details:
-                    if DrugName==drugs[1]:
-                        if DrugCategory==drugs[2]:
-                            if DrugBrand==drugs[3]:
+
+                for product in products:
+                    if ProductName==product[1]:
+                        if Category==product[5]:
+                            if source==product[6]:
                                 presence='yes'
                 if presence=='no':
-                    cursor.execute('INSERT INTO DRUG_DETAILS(DRUG_ID,DRUG_NAME,CATEGORY,BRAND,DOSAGE,STRENGTH,STATUS,COST,MODE)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(DrugId,DrugName,DrugCategory,DrugBrand,DrugDosage,DrugStrength,'yes',DrugCost,mode))
+                    cursor.execute('INSERT INTO PRODUCTS(PRODUCT_ID,PRODUCT_NAME,CATEGORY,STATUS,COST,QUANTITY,SOURCE)VALUES(%s,%s,%s,%s,%s,%s,%s)',(ProductId,ProductName,Category,'YES',ProductCost,productQuantity,source))
                     mydb.connection.commit()
                     #Update UserLog
                     cursor.execute('SELECT * FROM USER_LOG ORDER BY LOG_ID DESC')
-                    last_log_id=int(cursor.fetchall()[-1][0])+1
+                    last_log_id=int(cursor.fetchall()[0][0])+1
                     
-                    cursor.execute('INSERT INTO USER_LOG(LOG_ID,DRUG_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,DrugId,staffId,today,'ADD'))
+                    cursor.execute('INSERT INTO USER_LOG(LOG_ID,PRODUCT_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,ProductId,staffId,today,'ADD'))
                     mydb.connection.commit()
-
+                    
                 else:
-                    print('The drug already exists')
-            elif submit=='delete_drug':
-                DrugId=request.form['drugId']
-                cursor.execute('DELETE FROM DRUG_DETAILS WHERE DRUG_ID="'+DrugId+'"')
+                    print('The product already exists')
+            elif submit=='delete_product':
+                productId=request.form['productId']
+                print('|The product ID is '+productId)
+                cursor.execute('UPDATE PRODUCTS SET STATUS="NO" WHERE PRODUCT_ID='+productId)
                 mydb.connection.commit()
-                cursor.execute('DELETE FROM STOCK_TABLE WHERE PRODUCT_ID="'+DrugId+'"')
-                mydb.connection.commit()
+                
                 #Update UserLog
                 cursor.execute('SELECT * FROM USER_LOG ORDER BY LOG_ID DESC')
-                last_log_id=int(cursor.fetchall()[-1][0])+1
-                cursor.execute('INSERT INTO USER_LOG(LOG_ID,DRUG_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,DrugId,staffId,today,'DELETE'))
+                
+                last_log_id=int(cursor.fetchall()[0][0])+1
+                cursor.execute('INSERT INTO USER_LOG(LOG_ID,PRODUCT_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,productId,staffId,today,'DELETE'))
                 mydb.connection.commit()
+            
+            elif submit=='activate_product':
+
+                productId=request.form['productId']
+                print('|The product ID is '+productId)
+                cursor.execute('UPDATE PRODUCTS SET STATUS="YES" WHERE PRODUCT_ID='+productId)
+                mydb.connection.commit()
+                
+                #Update UserLog
+                cursor.execute('SELECT * FROM USER_LOG ORDER BY LOG_ID DESC')
+                
+                last_log_id=int(cursor.fetchall()[0][0])+1
+                cursor.execute('INSERT INTO USER_LOG(LOG_ID,PRODUCT_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,productId,staffId,today,'ADD'))
+                mydb.connection.commit()
+                
                 
             elif submit=='delete_stock':
                 print('delete stock')
                 StockId=request.form['StockId']
                 print(StockId)
-                cursor.execute('DELETE FROM STOCK_TABLE WHERE STOCK_ID="'+StockId+'"')
+                cursor.execute('DELETE FROM STOCK_TABLE WHERE STOCK_ID='+StockId)
                 mydb.connection.commit()
                 #Update UserLog
                 cursor.execute('SELECT * FROM USER_LOG ORDER BY LOG_ID DESC')
-                last_log_id=int(cursor.fetchall()[-1][0])+1
+                last_log_id=int(cursor.fetchall()[0][0])+1
                 cursor.execute('INSERT INTO USER_LOG(LOG_ID,STOCK_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,StockId,staffId,today,'DELETE'))
                 mydb.connection.commit()
 
-            elif submit=='AddNewSupplier':
-                cursor.execute('SELECT * FROM SUPPLIERS')
-                suppliersNew=cursor.fetchall()
-                SupplierId = int(suppliersNew[-1][0]) + 1
-                print(SupplierId)
-                supplierName = request.form["SupplierName"]
-                contactNumber = request.form['contact']
-                location=request.form['location']
-                
-                cursor.execute('INSERT INTO SUPPLIERS(SUPPLIER_ID,SUPPLIER_NAME,CONTACT,LOCATION)VALUES(%s,%s,%s,%s)',(SupplierId,supplierName,contactNumber,location))
-                mydb.connection.commit()
-                #Update UserLog
-                cursor.execute('SELECT * FROM USER_LOG ORDER BY LOG_ID DESC')
-                last_log_id=int(cursor.fetchall()[-1][0])+1
-                cursor.execute('INSERT INTO USER_LOG(LOG_ID,SUPPLIER_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,SupplierId,staffId,today,'ADD'))
-                mydb.connection.commit()
-
-
-            elif submit=='delete_supplier':
-                supplierId=request.form['SupplierId']
-                cursor.execute('DELETE FROM SUPPLIERS WHERE SUPPLIER_ID="'+supplierId+'"')
-                mydb.connection.commit()
-                #Update UserLog
-                cursor.execute('SELECT * FROM USER_LOG ORDER BY LOG_ID DESC')
-                last_log_id=int(cursor.fetchall()[-1][0])+1
-                cursor.execute('INSERT INTO USER_LOG(LOG_ID,SUPPLIER_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,supplierId,staffId,today,'DELETE'))
-                mydb.connection.commit()
 
             elif submit=='NewMember':
                 fullname=request.form['FullName']
@@ -423,7 +442,7 @@ def products():
                 mydb.connection.commit()
                 #Update UserLog
                 cursor.execute('SELECT * FROM USER_LOG ORDER BY LOG_ID DESC')
-                last_log_id=int(cursor.fetchall()[-1][0])+1
+                last_log_id=int(cursor.fetchall()[0][0])+1
                 cursor.execute('INSERT INTO USER_LOG(LOG_ID,MEMBER_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,IdNumber,staffId,today,'ADD'))
                 mydb.connection.commit()
                         
@@ -433,7 +452,7 @@ def products():
                 mydb.connection.commit()
                 #Update UserLog
                 cursor.execute('SELECT * FROM USER_LOG ORDER BY LOG_ID DESC')
-                last_log_id=int(cursor.fetchall()[-1][0])+1
+                last_log_id=int(cursor.fetchall()[0][0])+1
                 cursor.execute('INSERT INTO USER_LOG(LOG_ID,MEMBER_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,memberId,staffId,today,'DELETE'))
                 mydb.connection.commit()
 
@@ -443,10 +462,10 @@ def products():
                 mydb.connection.commit()
                 #Update UserLog
                 cursor.execute('SELECT * FROM USER_LOG ORDER BY LOG_ID DESC')
-                last_log_id=int(cursor.fetchall()[-1][0])+1
+                last_log_id=int(cursor.fetchall()[0][0])+1
                 cursor.execute('INSERT INTO USER_LOG(LOG_ID,MEMBER_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,memberId,staffId,today,'ADD'))
                 mydb.connection.commit()
-                
+            
 
 
             return redirect(url_for('products'))
@@ -456,7 +475,7 @@ def products():
     else:
         return redirect(url_for('signin'))
     
-    return render_template('products.html',msg=msg,today=today,expiry_range=expiry_range,managerCheck=managerCheck,drug_details=drug_details,suppliers=suppliers,users=users,stockdata=stockdata,stockdataDesc=stockdataDesc)
+    return render_template('products.html',products_active=products_active,msg=msg,today=today,managerCheck=managerCheck,products=products,users=users,stockdata=stockdata,stockdataDesc=stockdataDesc)
 
 
 @app.route('/accounts' ,methods=['POST','GET'] )
@@ -470,28 +489,23 @@ def accounts():
 
 
         cursor.execute(f'SELECT COUNT(*) FROM TRANSACTION WHERE CASHIER_ID={user_id}')
-        Drugs_Sold=cursor.fetchall()[0][0]
+        Products_Sold=cursor.fetchall()[0][0]
 
         cursor.execute(f'SELECT COUNT(*) FROM STOCK_TABLE WHERE STAFF_ID={user_id}')
         RestocksMade=cursor.fetchall()[0][0]
 
         cursor.execute(f'SELECT COUNT(*) FROM TRANSACTION WHERE CASHIER_ID={user_id}')
-        Drugs_Sold=cursor.fetchall()[0][0]
+        Products_Sold=cursor.fetchall()[0][0]
 
-        cursor.execute(f'SELECT COUNT(DRUG_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="DELETE" ')
-        Drugs_deleted=cursor.fetchall()[0][0]
+        cursor.execute(f'SELECT COUNT(PRODUCT_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="DELETE" ')
+        Products_deleted=cursor.fetchall()[0][0]
 
-        cursor.execute(f'SELECT COUNT(DRUG_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="ADD" ')
-        Drugs_added=cursor.fetchall()[0][0]
+        cursor.execute(f'SELECT COUNT(PRODUCT_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="ADD" ')
+        Products_added=cursor.fetchall()[0][0]
 
         cursor.execute(f'SELECT COUNT(STOCK_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="DELETE" ')
         stocks_Deleted=cursor.fetchall()[0][0]
 
-        cursor.execute(f'SELECT COUNT(SUPPLIER_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="ADD" ')
-        Suppliers_added=cursor.fetchall()[0][0]
-
-        cursor.execute(f'SELECT COUNT(SUPPLIER_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="DELETE" ')
-        Suppliers_deleted=cursor.fetchall()[0][0]
 
         cursor.execute(f'SELECT COUNT(MEMBER_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="ADD" ')
         members_added=cursor.fetchall()[0][0]
@@ -504,7 +518,7 @@ def accounts():
 
     else:
         return redirect(url_for('signin'))
-    return render_template('accounts.html',cashiers=cashiers,user=user,members_deleted=members_deleted,members_added=members_added,Suppliers_deleted=Suppliers_deleted,Suppliers_added=Suppliers_added,stocks_Deleted=stocks_Deleted,Drugs_added=Drugs_added,Drugs_deleted=Drugs_deleted,Drugs_Sold=Drugs_Sold,RestocksMade=RestocksMade)
+    return render_template('accounts.html',cashiers=cashiers,user=user,members_deleted=members_deleted,members_added=members_added,stocks_Deleted=stocks_Deleted,Products_added=Products_added,Products_deleted=Products_deleted,Products_Sold=Products_Sold,RestocksMade=RestocksMade)
 
 @app.route('/<cashier_id>' ,methods=['POST','GET'] )
 def accounts_cashier(cashier_id):
@@ -518,28 +532,23 @@ def accounts_cashier(cashier_id):
 
 
         cursor.execute(f'SELECT COUNT(*) FROM TRANSACTION WHERE CASHIER_ID={cashier_id}')
-        Drugs_Sold=cursor.fetchall()[0][0]
+        Products_Sold=cursor.fetchall()[0][0]
 
         cursor.execute(f'SELECT COUNT(*) FROM STOCK_TABLE WHERE STAFF_ID={cashier_id}')
         RestocksMade=cursor.fetchall()[0][0]
 
         cursor.execute(f'SELECT COUNT(*) FROM TRANSACTION WHERE CASHIER_ID={cashier_id}')
-        Drugs_Sold=cursor.fetchall()[0][0]
+        Products_Sold=cursor.fetchall()[0][0]
 
-        cursor.execute(f'SELECT COUNT(DRUG_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="DELETE" ')
-        Drugs_deleted=cursor.fetchall()[0][0]
+        cursor.execute(f'SELECT COUNT(PRODUCT_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="DELETE" ')
+        Products_deleted=cursor.fetchall()[0][0]
 
-        cursor.execute(f'SELECT COUNT(DRUG_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="ADD" ')
-        Drugs_added=cursor.fetchall()[0][0]
+        cursor.execute(f'SELECT COUNT(PRODUCT_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="ADD" ')
+        Products_added=cursor.fetchall()[0][0]
 
         cursor.execute(f'SELECT COUNT(STOCK_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="DELETE" ')
         stocks_Deleted=cursor.fetchall()[0][0]
 
-        cursor.execute(f'SELECT COUNT(SUPPLIER_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="ADD" ')
-        Suppliers_added=cursor.fetchall()[0][0]
-
-        cursor.execute(f'SELECT COUNT(SUPPLIER_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="DELETE" ')
-        Suppliers_deleted=cursor.fetchall()[0][0]
 
         cursor.execute(f'SELECT COUNT(MEMBER_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="ADD" ')
         members_added=cursor.fetchall()[0][0]
@@ -552,45 +561,55 @@ def accounts_cashier(cashier_id):
 
     else:
         return redirect(url_for('signin'))
-    return render_template('cashiers.html',user_id=user_id,cashiers=cashiers,user=user,members_deleted=members_deleted,members_added=members_added,Suppliers_deleted=Suppliers_deleted,Suppliers_added=Suppliers_added,stocks_Deleted=stocks_Deleted,Drugs_added=Drugs_added,Drugs_deleted=Drugs_deleted,Drugs_Sold=Drugs_Sold,RestocksMade=RestocksMade)
+    return render_template('cashiers.html',user_id=user_id,cashiers=cashiers,user=user,members_deleted=members_deleted,members_added=members_added,stocks_Deleted=stocks_Deleted,Products_added=Products_added,Products_deleted=Products_deleted,Products_Sold=Products_Sold,RestocksMade=RestocksMade)
 
 
 @app.route('/store',methods=['GET','POST'])
 def store():
+    if 'fullname' in session:
+        pass
+    else:
+        return redirect(url_for('signin'))
     cursor=mydb.connection.cursor()
     #Suppliers
-    cursor.execute('SELECT * FROM SUPPLIERS ORDER BY SUPPLIER_ID DESC')
-    supplier_data=cursor.fetchall()
+    
     #stock_id desc
     cursor.execute('SELECT * FROM STOCK_TABLE ORDER BY STOCK_ID DESC')
     stockdataDesc=cursor.fetchall()
-
-    cursor.execute('SELECT * FROM DRUG_DETAILS')
-    drug_details=cursor.fetchall()
-    print(stockdataDesc,drug_details)
+    cursor.execute('SELECT * FROM STOCK_TABLE JOIN PRODUCTS ON PRODUCTS.PRODUCT_ID = STOCK_TABLE.PRODUCT_ID ORDER BY STOCK_DATE DESC,PRODUCT_NAME DESC')
+    stockdataDesc1=cursor.fetchall()
+    print(stockdataDesc1)
+    cursor.execute('SELECT * FROM PRODUCTS ORDER BY STATUS DESC,PRODUCT_ID DESC')
+    products=cursor.fetchall()
+    
     #set expiry dates
     today=datetime.date.today()
-    year=datetime.date.today().year
-    month=datetime.date.today().month+4
-    date=datetime.date.today().day
-    if month>12:
-        year=year+1
-        month=month-12
-    try:
-        expiry_range=datetime.date(year,month,date)
-    except:
-        expiry_range=datetime.date(year,month,25)
     
-    return render_template('store.html',supplier_data=supplier_data,today=today,expiry_range=expiry_range,stockdataDesc=stockdataDesc,drug_details=drug_details)
+    
+    return render_template('store.html',stockdataDesc1=stockdataDesc1,today=today,stockdataDesc=stockdataDesc,products=products)
 
 @app.route('/bank',methods=['POST','GET'])
 def bank():
+    if 'fullname' in session:
+        pass
+    else:
+        return redirect(url_for('signin'))
     cursor = mydb.connection.cursor()
     cursor.execute('SELECT * FROM ACCOUNT ORDER BY BANK_TRANSACTION_ID DESC')
     bank_data=cursor.fetchall()
 
     cursor.execute('SELECT * FROM EXPENDITURE ORDER BY EXPENDITURE_ID DESC')
     expenditure=cursor.fetchall()
+    cursor.execute('SELECT * FROM STOCK_TABLE ORDER BY STOCK_ID DESC')
+    stockdata=cursor.fetchall()
+    cursor.execute('SELECT * FROM PRODUCTS ORDER BY PRODUCT_ID DESC')
+    products=cursor.fetchall()
+    cursor.execute('SELECT * FROM TRANSACTION ORDER BY TRANSACTION_ID DESC')
+    transactions=cursor.fetchall()
+    cursor.execute('SELECT * FROM TRANSACTION_ITEMS ORDER BY TRANSACTION_ITEM_ID DESC')
+    transaction_items=cursor.fetchall()
+    cursor.execute('SELECT * FROM USERS')
+    cashiers=cursor.fetchall()
 
     available=bank_data[0][5]
     
@@ -609,32 +628,29 @@ def bank():
             expenditure_id=int(expenditure[0][0])+1
             date=datetime.date.today()
 
-            if subtotal > available:
-                print('cant obtain more than available')
-                return redirect(url_for('bank'))
-
-
-            cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,date,commodity_type,commodity_name,description,provider,quantity,unit_price,transport_cost,transaction_cost,subtotal))
+            cashier_id=session['id']
+            cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL,CASHIER_ID)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,date,commodity_type,commodity_name,description,provider,quantity,unit_price,transport_cost,transaction_cost,subtotal,cashier_id))
             mydb.connection.commit()
 
             bank_transaction_id=(bank_data[0][0])+1
             bank_balance=(bank_data[0][5])-subtotal
 
-            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,SALE_ID,AMOUNT_IN,DEBIT)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,expenditure_id,subtotal,bank_balance,date,0,0," "))
+            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,MODE)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,expenditure_id,subtotal,bank_balance,date,0,0,"EXPENSE"))
             mydb.connection.commit()
         
         if submit=='deposit':
             amount=int(request.form['amount_to_deposit'])
-            new_balance=float((bank_data[0][5]))+ float (amount)
+            new_balance=int((bank_data[0][5]))+ int (amount)
             today=datetime.date.today()
             bank_transaction_id=(bank_data[0][0])+1
-            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,SALE_ID,AMOUNT_IN,DEBIT)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,0,0,new_balance,today,0,amount," "))
+            cashier_id=session['id']
+            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,MODE)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,0,0,new_balance,today,0,amount,cashier_id))
             mydb.connection.commit()
 
         return redirect(url_for('bank'))
         
 
-    return render_template('Bank.html',bank_data=bank_data,available=available)
+    return render_template('Bank.html',cashiers=cashiers,transaction_items=transaction_items,bank_data=bank_data,available=available,stockdata=stockdata,products=products,expenditure=expenditure,transactions=transactions)
 
 
 if __name__ == '__main__':
