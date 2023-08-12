@@ -118,10 +118,7 @@ def order():
             cursor.execute('SELECT TRANSACTION_ID FROM TRANSACTION')
             last_transaction_id=cursor.fetchall()[-1][0]
             last_transaction_id=int(last_transaction_id)+1
-            #Get last Sales_ID
-            cursor=mydb.connection.cursor()
-            cursor.execute('SELECT SALES_ID FROM SALES')
-            last_sales_id=int(cursor.fetchall()[-1][0])
+            
             
             sale_date=str(datetime.date.today())
             total_cost=0
@@ -161,20 +158,9 @@ def order():
                     #insert into SALES
                     sale_date=datetime.date.today()
                     print(sale_date)
-                    last_sales_id=int(last_sales_id)+1
-                    cursor.execute('INSERT INTO SALES(SALES_ID,PRODUCT_ID,SALES_DATE,QUANTITY,UNIT_PRICE,TOTAL_AMOUNT)VALUES(%s,%s,%s,%s,%s,%s)',(last_sales_id,stockID[0],sale_date,stockID[1],cost,subtotal))
-                    mydb.connection.commit()
-
-                    #Submit into the account
-                    #Find CATEGORY
-                    category=cost_product_name[0][5]
                     
-                    cursor.execute('SELECT * from ACCOUNT ORDER BY BANK_TRANSACTION_ID DESC')
-                    Bank_Account=cursor.fetchall()
-                    Bank_balance=int(Bank_Account[0][5])+subtotal
-                    last_bank_id=int(Bank_Account[0][0])+1
-                    cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,SALE_ID,AMOUNT_IN,BALANCE,DATE,EXPENSE_ID,AMOUNT_OUT,DEBIT,PURPOSE)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(last_bank_id,last_sales_id,subtotal,Bank_balance,sale_date,0,0," ",category))
-                    mydb.connection.commit()
+
+                    
 
                     #deduct from Inventory in Products
                     rem_stock=int(cost_product_name[0][4])
@@ -198,6 +184,15 @@ def order():
                 id_number=str(session['id'])
                 cursor.execute('INSERT INTO TRANSACTION(TRANSACTION_ID,CASHIER_ID,SALE_DATE,TOTAL_SALES,PARTIAL_PAY)VALUES(%s,%s,%s,%s,%s)',(last_transaction_id,id_number,sale_date,total_cost,'NO'))
                 mydb.connection.commit()
+            #Submit into the account
+            #Find CATEGORY
+            
+            cursor.execute('SELECT * from ACCOUNT ORDER BY BANK_TRANSACTION_ID DESC')
+            Bank_Account=cursor.fetchall()
+            Bank_balance=int(Bank_Account[0][5])+subtotal
+            last_bank_id=int(Bank_Account[0][0])+1
+            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,TRANSACTION_ID,AMOUNT_IN,BALANCE,DATE,EXPENSE_ID,AMOUNT_OUT,DEBIT,PURPOSE)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(last_bank_id,last_transaction_id,subtotal,Bank_balance,sale_date,0,0,"TRANSACTION",''))
+            mydb.connection.commit()
             
             
             return redirect(url_for('order'))
@@ -303,6 +298,7 @@ def products():
                 staffId=session['id']
                 productId=request.form['productId']
                 productQuantity=int(request.form['Quantity'])
+                initial_Q=productQuantity
                 
                 productBP=request.form['productBP']
                 productSP=request.form['productSP']
@@ -374,17 +370,18 @@ def products():
                 mydb.connection.commit()
                 
                 # Remove money from the account
-                subtotal=int(productBP)*int(productQuantity)
+                subtotal=int(productBP)*int(initial_Q)
                 bank_transaction_id=(bank_data[0][0])+1
                 bank_balance=(bank_data[0][5])-subtotal
                 expenditure_id=int(expenditure[0][0])+1
                 if subtotal==0:
                     pass
                 else:
-                    cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,today,'RESTOCK',' ','','',productQuantity,productBP,0,0,subtotal))
+                    cashier_id=session['id']
+                    cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL,CASHIER_ID)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,today,'RESTOCK',' ','','',initial_Q,productBP,0,0,subtotal,cashier_id))
                     mydb.connection.commit()
                     
-                    cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,SALE_ID,AMOUNT_IN,DEBIT,PURPOSE)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,expenditure_id,subtotal,bank_balance,today,0,0," ",category))
+                    cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,DEBIT,PURPOSE)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,stock_id,subtotal,bank_balance,today,0,0,"RESTOCK",category))
                     mydb.connection.commit()
             
            
@@ -412,7 +409,7 @@ def products():
                     
                     cursor.execute('INSERT INTO USER_LOG(LOG_ID,PRODUCT_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,ProductId,staffId,today,'ADD'))
                     mydb.connection.commit()
-
+                    
                 else:
                     print('The product already exists')
             elif submit=='delete_product':
@@ -625,6 +622,16 @@ def bank():
 
     cursor.execute('SELECT * FROM EXPENDITURE ORDER BY EXPENDITURE_ID DESC')
     expenditure=cursor.fetchall()
+    cursor.execute('SELECT * FROM STOCK_TABLE ORDER BY STOCK_ID DESC')
+    stockdata=cursor.fetchall()
+    cursor.execute('SELECT * FROM PRODUCTS ORDER BY PRODUCT_ID DESC')
+    products=cursor.fetchall()
+    cursor.execute('SELECT * FROM TRANSACTION ORDER BY TRANSACTION_ID DESC')
+    transactions=cursor.fetchall()
+    cursor.execute('SELECT * FROM TRANSACTION_ITEMS ORDER BY TRANSACTION_ITEM_ID DESC')
+    transaction_items=cursor.fetchall()
+    cursor.execute('SELECT * FROM USERS')
+    cashiers=cursor.fetchall()
 
     available=bank_data[0][5]
     
@@ -643,16 +650,14 @@ def bank():
             expenditure_id=int(expenditure[0][0])+1
             date=datetime.date.today()
 
-            
-
-
-            cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,date,commodity_type,commodity_name,description,provider,quantity,unit_price,transport_cost,transaction_cost,subtotal))
+            cashier_id=session['id']
+            cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL,CASHIER_ID)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,date,commodity_type,commodity_name,description,provider,quantity,unit_price,transport_cost,transaction_cost,subtotal,cashier_id))
             mydb.connection.commit()
 
             bank_transaction_id=(bank_data[0][0])+1
             bank_balance=(bank_data[0][5])-subtotal
 
-            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,SALE_ID,AMOUNT_IN,DEBIT)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,expenditure_id,subtotal,bank_balance,date,0,0," "))
+            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,DEBIT)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,expenditure_id,subtotal,bank_balance,date,0,0,"EXPENSE"))
             mydb.connection.commit()
         
         if submit=='deposit':
@@ -660,13 +665,14 @@ def bank():
             new_balance=int((bank_data[0][5]))+ int (amount)
             today=datetime.date.today()
             bank_transaction_id=(bank_data[0][0])+1
-            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,SALE_ID,AMOUNT_IN,DEBIT)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,0,0,new_balance,today,0,amount," "))
+            cashier_id=session['id']
+            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,DEBIT)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,0,0,new_balance,today,0,amount,cashier_id))
             mydb.connection.commit()
 
         return redirect(url_for('bank'))
         
 
-    return render_template('Bank.html',bank_data=bank_data,available=available)
+    return render_template('Bank.html',cashiers=cashiers,transaction_items=transaction_items,bank_data=bank_data,available=available,stockdata=stockdata,products=products,expenditure=expenditure,transactions=transactions)
 
 
 if __name__ == '__main__':

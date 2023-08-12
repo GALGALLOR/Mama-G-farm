@@ -139,7 +139,36 @@
         .navbar li a:hover {
             background-color: #56c483;
         }
-       
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        .pop{
+            display:none;
+        }
+        label:hover{
+            cursor: pointer;
+        }
+        label{
+            user-select: none;
+        }
     </style>
 </head>
 <body>
@@ -153,10 +182,162 @@
             <li><a href="/sign_in">LOGOUT</a></li>
         </ul>
     </div>
+    <!--<div class="modal" id="removeModal">
+        <div class="modal-content">
+            <form class="modal-form">
+                <h1 >DEBIT VIEW</h1>
+                <h3> BANK TRANSACTION ID : 46 </h3>
+                <h3> CASHIER NAME: BORU ROBA </h3>
+                <h3> SALE DATE : 2023-08-01 </h3>
+                <h3> PRODUCTS BOUGHT: 3 trays@500,4 bad trays@300</h3>
+                <h3> TOTAL : KSH 4000</h3>
+            </form>
+        </div>
+    </div> -->
+    <!--  <div class="modal" id="removeModal">
+        <div class="modal-content">
+            <form class="modal-form">
+                <h1 style="color:red;" >CREDIT VIEW</h1>
+                <table>
+                    
+                        <tr> <td>BANK TRANSACTION ID :</td> <td>1 </td></tr>
+                        <tr> <td>DATE</td> <td>                 2023-01-01 </td></tr>
+                        <tr> <td> EXPENDITURE ID: </td> <td>    5 </td></tr>
+                        <tr> <td> COMMODITY TYPE : </td> <td>   PRODUCT </td></tr>
+                        <tr> <td> COMMODITY NAME : </td> <td>   TIMBER </td></tr>
+                        <tr> <td> DESCRIPTION : </td> <td>      TIMBER FOR MAKING THE ROOF OF THE CHICKEN HOUSE </td></tr>
+                        <tr> <td> PROVIDER : </td> <td>         JUA KALI MERCHANT </td></tr>
+                        <tr> <td> QUANTITY </td> <td>           500 </td></tr>
+                        <tr> <td> UNIT PRICE </td> <td>Ksh     30     </td></tr>
+                        <tr> <td> TRANSPORT COST </td> <td>     500 </td></tr>
+                        <tr> <td> TRANSACTION COST </td> <td>   30 </td></tr>
+                        <tr> <td> SUBTOTAL </td> <td>         Ksh  4030 </td></tr>
+                        <tr> <td> CASHIER NAME </td> <td> GALGALLO ROBA </td> </tr>
+                    
+                </table>
+            </form>
+        </div>
+    </div>
+-->
+<!--
+<div class="modal" id="removeModal">
+    <div class="modal-content">
+        <form class="modal-form">
+            <h1 style="color:red;" >CREDIT VIEW</h1>
+            <table>
+                
+                    <tr> <td>BANK TRANSACTION ID :</td> <td>1 </td></tr>
+                    <tr> <td>DATE</td> <td>                 2023-01-01 </td></tr>
+                    <tr> <td> STOCK ID: </td> <td>    5 </td></tr>
+                    <tr> <td> PRODUCT NAME : </td> <td>   ROOM 1 CHICKEN </td></tr>
+                    <tr> <td> PRODUCT CATEGORY </td> <td> POULTRY </td> </tr>
+                    <tr> <td> PRODUCT SOURCE </td> <td> OTHER </td> </tr>
+                    <tr> <td> QUANTITY : </td> <td>   500 </td></tr>
+                    <tr> <td> STAFF NAME : </td> <td>      GALGALLO ROBA </td></tr>
+                    <tr> <td> BUYING PRICE : </td> <td>         KSH 500.00 </td></tr>
+                    
+                
+            </table>
+        </form>
+    </div>
+</div> 
+-->
+
+{%for b in bank_data%}
+    {% if b[6]=='RESTOCK' %}
+        {%for stock in stockdata%}
+            {%if stock[0]==b[3]%}
+                <div style="display:none;" class="modal" id="form{{b[0]}}">
+                    <div class="modal-content">
+                        <form class="modal-form">
+                            <h1 style="color:red;" > <label for="pop{{b[0]}}">CREDIT VIEW</label></h1>
+                            <table>
+                                    <tr> <td>BANK TRANSACTION ID :</td> <td>{{b[0]}} </td></tr>
+                                    <tr> <td>DATE</td> <td>                 {{b[7]}} </td></tr>
+                                    <tr> <td> STOCK ID: </td> <td>    {{stock[0]}} </td></tr>
+                                    {%for product in products%}
+                                    {%if product[0]==stock[1]%}
+                                    <tr> <td> PRODUCT NAME : </td> <td>   {{product[1]}}</td></tr>
+                                    <tr> <td> PRODUCT CATEGORY </td> <td> {{product[5]}} </td> </tr>
+                                    <tr> <td> PRODUCT SOURCE </td> <td> {{product[6]}} </td> </tr>
+                                    <tr> <td> QUANTITY : </td> <td>   {{stock[3]}} </td></tr>
+                                    {%for cashier in cashiers%}
+                                    {%if cashier[0]==stock[4]%}
+                                    <tr> <td> STAFF NAME : </td> <td>      {{cashier[1]}} </td></tr>
+                                    {%endif%}
+                                    {%endfor%}
+                                    <tr> <td> BUYING PRICE : </td> <td>         KSH {{stock[5]}} </td></tr>
+                                    {%endif%}
+                                    {%endfor%}
+                                
+                            </table>
+                        </form>
+                    </div>
+                </div> 
+            {%endif%}
+        {%endfor%}
+    {%endif%}
+    {% if b[6]=='EXPENSE' %}
+        {%for expense in expenditure%}
+            {%if expense[0]==b[3]%}
+            <div style="display:none;" class="modal" id="form{{b[0]}}">
+                <div class="modal-content">
+                    <form class="modal-form">
+                        <h1 style="color:red;" ><label for="pop{{b[0]}}">CREDIT VIEW</label></h1>
+                        <table>
+                                <tr> <td>BANK TRANSACTION ID :</td> <td>{{b[0]}} </td></tr>
+                                <tr> <td>DATE</td> <td>                 {{b[0]}} </td></tr>
+                                <tr> <td> EXPENDITURE ID: </td> <td>    {{expense[0]}} </td></tr>
+                                <tr> <td> COMMODITY TYPE : </td> <td>   {{expense[1]}} </td></tr>
+                                <tr> <td> COMMODITY NAME : </td> <td>   {{expense[2]}} </td></tr>
+                                <tr> <td> DESCRIPTION : </td> <td>      {{expense[3]}} </td></tr>
+                                <tr> <td> PROVIDER : </td> <td>         {{expense[4]}} </td></tr>
+                                <tr> <td> QUANTITY </td> <td>           {{expense[5]}} </td></tr>
+                                <tr> <td> UNIT PRICE </td> <td>Ksh     {{expense[6]}}     </td></tr>
+                                <tr> <td> TRANSPORT COST </td> <td>     {{expense[7]}} </td></tr>
+                                <tr> <td> TRANSACTION COST </td> <td>   {{expense[8]}} </td></tr>
+                                <tr> <td> SUBTOTAL </td> <td>         Ksh  {{expense[9]}} </td></tr>
+                                <tr> <td> CASHIER NAME </td> <td> {{expense[10]}} </td> </tr>
+                            
+                        </table>
+                    </form>
+                </div>
+            </div>
+            {%endif%}
+        {%endfor%}
+    {%endif%}
+    {%if b[6]=='TRANSACTION' %}
+    {%for transaction in transactions%}
+    <div style="display:none;" class="modal" id="form{{b[0]}}">
+        <div class="modal-content">
+            <form class="modal-form">
+                <h1> <label for="pop{{b[0]}}">DEBIT VIEW</label> </h1>
+                <table>
+                <tr> <td> BANK TRANSACTION ID :</td><td>{{b[0]}} </td></tr>
+                <tr> <td> TRANSACTION ID : </td> <td>{{b[1]}}</td> </tr>{%for cashier in cashiers%}{%if cashier[0]==transaction[1]%}
+                <tr> <td> CASHIER NAME: </td> <td> {{cashier[1]}}</td> </tr>{%endif%}{%endfor%}
+                <tr> <td> SALE DATE :</td> <td> {{transaction[2]}} </td></tr>
+                <tr> <td> PRODUCTS BOUGHT: </td>
+                    <td>{%for items in transaction_items%}
+                    {%if items[1]==transaction[0]%}
+                    {{items[2]}} {{items[4]}}@{{items[3]}}= Ksh {{items[5]}}
+                    {%endif%}
+                    {%endfor%}</td>
+                </tr>
+                <tr> <td> TOTAL : </td> <td> KSH {{transaction[3]}}</td></tr>
+                </table>
+            </form>
+        </div>
+    </div>
+    {%endfor%}
+    {%endif%}
+{%endfor%}
+
     <div class="container">
         
         <table class="itemTable" >
             <tr>
+                <th>check</th>
                 <th>TRANSACTION ID</th>
                 <th>DATE</th>
                 <th  >DEBIT</th>
@@ -166,13 +347,16 @@
             </tr>
             {%for bank_transaction in bank_data%}
             <tr class="debit-row">
-                <td>{{bank_transaction[0]}}.</td>
-                <td>{{bank_transaction[7]}}</td>
-                <td  > {{bank_transaction[2]}}</td>
-                <td  > {{bank_transaction[4]}}</td>
-                <td>{{bank_transaction[6]}}</td>
-                <td><B>Ksh {{bank_transaction[5]}}</B></td>
+                <td><input class="pop" onclick="appear('pop{{bank_transaction[0]}}','form{{bank_transaction[0]}}')" type="checkbox" name="popup" id="pop{{bank_transaction[0]}}"></td>
+                <td><label for="pop{{bank_transaction[0]}}">{{bank_transaction[0]}}.</label></td>
+                <td><label for="pop{{bank_transaction[0]}}">{{bank_transaction[7]}}</label></td>
+                <td><label for="pop{{bank_transaction[0]}}"> {{bank_transaction[2]}}</label></td>
+                <td><label for="pop{{bank_transaction[0]}}"> {{bank_transaction[4]}}</label></td>
+                <td><label for="pop{{bank_transaction[0]}}">{{bank_transaction[6]}}</label></td>
+                <td><label for="pop{{bank_transaction[0]}}"><B>Ksh {{bank_transaction[5]}}</B></label></td>
             </tr>
+            <!-- POPUP -->
+            
             {%endfor%}
             
           
@@ -238,6 +422,39 @@
 </body>
 
 <script>
+    //Popup managerment
+    function appear(inputID,formID){
+            const forms = [];
+
+            // Get all elements with a specific class
+            const elementsWithClass = document.querySelectorAll('.modal');
+            // Loop through the selected elements and add their IDs to the array
+            elementsWithClass.forEach(element => {
+                const elementId = element.id;
+                forms.push(elementId);
+            });
+        const  input = document.getElementById(inputID);
+        if(input.checked==true){
+            
+            var form=document.getElementById(formID);
+        
+            for (let i=0;i<forms.length;i++){
+                var x=document.getElementById(forms[i]);
+                x.style.display='none';
+            }
+            form.style.display='block';
+        }
+        else{
+            var form=document.getElementById(formID);
+        
+            for (let i=0;i<forms.length;i++){
+                var x=document.getElementById(forms[i]);
+                x.style.display='none';
+            }
+        };
+        
+    }
+    //end of popup
     var q=  document.getElementById('quantity');
     var p=  document.getElementById('unit_price');
     var t1= document.getElementById('transaction_cost');
@@ -284,5 +501,7 @@ function nextPage() {
 // Add an event listener to the "Next" button
 const nextButton = document.getElementById("nextButton");
 nextButton.addEventListener("click", nextPage);
+//popup
+
 </script>
 </html>

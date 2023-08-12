@@ -266,8 +266,8 @@
                     <td> <label for="delete{{product[0]}}">     {{product[1]}}</label></td>
                     <td> <label for="delete{{product[0]}}">     {{product[5]}}</label></td>
                     <td> <label for="delete{{product[0]}}">     {{product[6]}}</label></td>
-                    <td> <label for="delete{{product[0]}}">     {{product[3]}}</label></td>
-                    <td> <label for="delete{{product[0]}}"> Ksh {{product[4]}}</label></td>
+                    <td> <label for="delete{{product[0]}}"> Ksh {{product[3]}}</label></td>
+                    <td> <label for="delete{{product[0]}}">     {{product[4]}}</label></td>
                     <td> <label for="delete{{product[0]}}">     {{product[2]}}</label></td>
                     
                 </tr>
@@ -301,17 +301,17 @@
             {%for stock in stockdataDesc %}
            <tr>
                 <td><input required type="radio" name="StockId" value="{{stock[0]}}" id="DelStock{{stock[0]}}"></td>
-                <td> <label for="DelStock{{stock[0]}}">{{stock[2]}} </label></td>
-                <td> <label for="DelStock{{stock[0]}}">{{stock[0]}} </label></td>
+                <!--date--> <td> <label for="DelStock{{stock[0]}}">{{stock[2]}} </label></td>
+                <!--StockID--> <td> <label for="DelStock{{stock[0]}}">{{stock[0]}} </label></td>
                 {%for product in products%}
                     {%if product[0]==stock[1]%}
-                <td> <label for="DelStock{{stock[0]}}">{{product[1]}}</label></td>
-                <td> <label for="DelStock{{stock[0]}}">{{product[5]}} </label></td>
-                <td> <label for="DelStock{{stock[0]}}">{{product[6]}} </label></td>
-                <td> <label for="DelStock{{stock[0]}}">{{product[4]}} </label></td>
-                <td> <label for="DelStock{{stock[0]}}">{{stock[3]}} </label></td>
-                <td> <label for="DelStock{{stock[0]}}"> {{stock[4]}}</label></td>
-                <td> <label for="DelStock{{stock[0]}}">Ksh {{stock[5]}} </label></td>
+                <!--prodNm--> <td> <label for="DelStock{{stock[0]}}">{{product[1]}}</label></td>
+                <!--prodCat--> <td> <label for="DelStock{{stock[0]}}">{{product[5]}} </label></td>
+                <!--Source --> <td> <label for="DelStock{{stock[0]}}">{{product[6]}} </label></td>
+                <!--StaffID--> <td> <label for="DelStock{{stock[0]}}">{{stock[4]}} </label></td>
+                <!--BP--> <td> <label for="DelStock{{stock[0]}}">Ksh {{stock[5]}}</label></td>
+                <!--Q--> <td> <label for="DelStock{{stock[0]}}"> {{stock[3]}}</label></td>
+                <!--Instock--> <td> <label for="DelStock{{stock[0]}}">{{product[4]}} </label></td>
                 {%endif%}
                 {%endfor%}
                 
