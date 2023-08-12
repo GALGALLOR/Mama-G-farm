@@ -269,6 +269,12 @@
                                     <tr> <td> BUYING PRICE : </td> <td>         KSH {{stock[5]}} </td></tr>
                                     {%endif%}
                                     {%endfor%}
+                                    <tr>{%for subtotal in expenditure%}
+                                        {%if subtotal[12]==stock[0] %}
+                                        <td>SUBTOTAL : </td><td>{{subtotal[10]}}</td>
+                                        {%endif%}
+                                        {%endfor%}
+                                    </tr>
                                 
                             </table>
                         </form>

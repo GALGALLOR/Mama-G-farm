@@ -103,6 +103,9 @@
             cursor: pointer;
             background:#56c483;
         }
+        label{
+            user-select: none;
+        }
         /* Navbar styles */
         .navbar {
             background-color: #44aadd;
@@ -187,7 +190,7 @@
 
             </table>
             <table>
-            <tr><td><label for="">Quantity:</label>     </td><td style="width:100%;" ><input required step="any" type="number" name="Quantity" id="Quantity"><br></td></tr>
+            <tr><td><label for="">Quantity:</label>     </td><td style="width:100%;" ><input required  type="number" name="Quantity" id="Quantity"><br></td></tr>
             <tr><td><label for="">Unit Buying Price: </label></td><td style="width:100%;" ><input required  name="productBP" id="buyingPrice" value="0" type="number"><br></td></tr>
             <tr><td><label for="">Unit Selling Price: </label></td><td style="width:100%;" ><input required  name="productSP" id="sellingPrice" type="number"><br></td></tr>
             
@@ -375,7 +378,7 @@
     {%endif%}
     <script>
         //subtotal autoupdate
-        var q=document.getElementById('Quantity');
+        var q=document.getElementById("Quantity");
         var bp=document.getElementById('buyingPrice');
         q.addEventListener('input', function() {
             var to_be= document.getElementById('subtotal_restock');

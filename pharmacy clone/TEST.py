@@ -336,39 +336,17 @@ def products():
                     else:
                         pass
                 print(present)
-                if present=='no':
-                    stock_id=int(stockdataDesc[0][0])+1
-                    cursor.execute('INSERT INTO STOCK_TABLE(STOCK_ID,PRODUCT_ID,STOCK_DATE,QUANTITY,STAFF_ID,BP,PERCENTAGE)VALUES(%s,%s,%s,%s,%s,%s,%s)',(stock_id,productId,today,productQuantity,staffId,productBP,percentage))
-                    mydb.connection.commit()
-                else:
-                #update stocks
-                    try:
-                        if 'trays' in product_name:
-                            percentage=(30*productQuantity)*100/int(population)
-                        elif 'TRAYS' in product_name:
-                            percentage=(30*productQuantity)*100/int(population)
-                        else:
-                            percentage=quantity*100/int(population)
-                    except:
-                        percentage=0
-                    
-                    
-
-                    cursor.execute(f'SELECT * FROM STOCK_TABLE WHERE STOCK_DATE="{str(today)}" AND PRODUCT_ID="{productId}"')
-                    stock_data=cursor.fetchall()
-                    stock_id=int(stock_data[0][0])
-                    cursor.execute(f'UPDATE STOCK_TABLE SET QUANTITY={str(quantity)},PERCENTAGE={str(percentage)} WHERE STOCK_ID='+str(stock_id))
-
-
                 #update SellingPrice & Quantity
                 for product in products:
                     if int(product[0])==int(productId):
                         category=product[5]
-                        productQuantity=int(productQuantity)+int(product[4])
+                        NewproductQuantity=int(productQuantity)+int(product[4])
                         
-                cursor.execute(f'UPDATE PRODUCTS SET COST={productSP},QUANTITY={productQuantity} WHERE PRODUCT_ID={productId}')
+                cursor.execute(f'UPDATE PRODUCTS SET COST={productSP},QUANTITY={NewproductQuantity} WHERE PRODUCT_ID={productId}')
                 mydb.connection.commit()
-                
+                stock_id=int(stockdataDesc[0][0])+1
+                cursor.execute('INSERT INTO STOCK_TABLE(STOCK_ID,PRODUCT_ID,STOCK_DATE,QUANTITY,STAFF_ID,BP,PERCENTAGE)VALUES(%s,%s,%s,%s,%s,%s,%s)',(stock_id,productId,today,productQuantity,staffId,productBP,percentage))
+                mydb.connection.commit()
                 # Remove money from the account
                 subtotal=int(productBP)*int(initial_Q)
                 bank_transaction_id=(bank_data[0][0])+1
@@ -378,14 +356,14 @@ def products():
                     pass
                 else:
                     cashier_id=session['id']
-                    cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL,CASHIER_ID)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,today,'RESTOCK',' ','','',initial_Q,productBP,0,0,subtotal,cashier_id))
+                    cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL,CASHIER_ID,STOCK_ID)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,today,'RESTOCK',' ','','',initial_Q,productBP,0,0,subtotal,cashier_id,stock_id))
                     mydb.connection.commit()
-                    
-                    cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,DEBIT,PURPOSE)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,stock_id,subtotal,bank_balance,today,0,0,"RESTOCK",category))
-                    mydb.connection.commit()
-            
-           
 
+                    cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,DEBIT,PURPOSE)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,stock_id,subtotal,bank_balance,today,0,0,"RESTOCK",category))
+                    mydb.connection.commit()           
+                
+                
+            
             elif submit=='addNewProduct':
                 ProductId=int(products[0][0])+1
                 ProductName=request.form['productName']
