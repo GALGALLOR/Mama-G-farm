@@ -747,11 +747,35 @@ def bank():
             cashier_id=session['id']
             cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,MODE)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,0,0,new_balance,today,0,amount,cashier_id))
             mydb.connection.commit()
-
-        return redirect(url_for('bank'))
         
 
-    return render_template('Bank.html',cashiers=cashiers,transaction_items=transaction_items,bank_data=bank_data,available=available,stockdata=stockdata,products=products,expenditure=expenditure,transactions=transactions)
+        return redirect(url_for('bank'))
+    #GRAPH
+    #arrange data in MONTHLY format
+    #PROFIT LOSS
+    
+    total_monthly_data=[]
+    date_data=[]
+    ProfitData=[]
+    Lossdata=[]
+    for transaction in bank_data:
+        month=(transaction[7]).month
+        if month in date_data:
+            ProfitData[-1]= ProfitData[-1]+transaction[2]
+            Lossdata[-1]=Lossdata[-1]+transaction[4]
+        else:
+            date_data.append(month)
+            ProfitData.append(transaction[2])
+            Lossdata.append(transaction[4])
+    
+    i=0
+    while i<len(date_data):
+        total_monthly_data.append((date_data[i],ProfitData[i],Lossdata[i]))
+        i=i+1
+    
+    print(total_monthly_data)
+
+    return render_template('Bank.html',total_monthly_data=total_monthly_data,cashiers=cashiers,transaction_items=transaction_items,bank_data=bank_data,available=available,stockdata=stockdata,products=products,expenditure=expenditure,transactions=transactions)
 
 
 if __name__ == '__main__':

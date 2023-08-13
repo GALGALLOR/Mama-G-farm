@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
-<head>
+<head>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
     <style>
         /* General styles */
         body {
@@ -431,12 +433,62 @@
                 </table>
                 <button   style="background:rgb(9, 255, 0);" value="deposit" name="submit" type="submit">Deposit</button>
             </form>
+                
+            <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
         </div>
+        <span class="graph">
+            {%for month in total_monthly_data%}
+            <span style="display:none;" class="month_info">{{month[0]}}</span>
+            <span style="display:none;" class="P_info">{{month[1]}}</span>
+            <span style="display:none;" class="L_info">{{month[2]}}</span>
+            {%endfor%}
+        </span>
         
     </div>
+    
 </body>
 
 <script>
+const xSource=document.querySelectorAll('.month_info');
+const yy1Source = document.querySelectorAll('.P_info');
+const yy2source=document.querySelectorAll('.L_info');
+const xx = [];
+const yy1 = [];
+const yy2=[];
+for(let i=0;i<yy1Source.length;i++){
+    xx.push(xSource[i].innerHTML);
+    yy1.push(yy1Source[i].innerHTML);
+    yy2.push(yy2source[i].innerHTML);
+};
+new Chart("myChart", {
+  type: "bar",
+  data: {
+    labels: xx,
+    datasets: [
+      {
+        label: "Profit",
+        backgroundColor: "blue",
+        borderColor: "blue",
+        data: yy1
+      },{
+        label:'loss',
+        backgroundColor : 'red',
+        data:yy2
+      }
+    ]
+  },
+  options: {
+    legend: {
+      display: true, // Change this to true if you want to display the legend
+      position: "top", // You can change the position if needed
+    },
+    title: {
+      display: true,
+      text: "PROFIT-LOSS MONITOR"
+    }
+  }
+});
+
     //Popup managerment
     function appear(inputID,formID){
             const forms = [];
