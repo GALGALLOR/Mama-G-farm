@@ -208,7 +208,12 @@
             <table>
                 
                 <tr><td><label for="">PRODUCT NAME: </label></td><td style="width:100%;" ><input required  name="productName" type="text"><br></td></tr>
-                <tr><td><label for="">CATEGORY:</label>     </td><td style="width:100%;" ><input required  type="text" name="category" ><br></td></tr>
+                <tr><td><label for="">CATEGORY:</label>     </td><td style="width:100%;" >
+                    <label for="EGGS">EGGS </label> <input id="EGGS" required  type="radio" value="EGGS" name="category" ><br>
+                    <label for="POULTRY">POULTRY </label> <input id="POULTRY" required  type="radio" value="POULTRY" name="category" ><br>
+                    <label for="GARLIC">GARLIC </label> <input id="GARLIC" required  type="radio" value="GARLIC" name="category" ><br>
+
+                </td></tr>
                 <tr><td><label for="">SOURCE:</label>     </td><td style="width:100%;" >
                    <br>
                     {%for product in products_active%}

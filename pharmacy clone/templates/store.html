@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
     <title>Pharmaceutical Website</title>
     <style>
         body {
@@ -299,7 +300,7 @@
         <!-- Specify POULTRY -->
             {%for product in products%}
                 {%if product[0]==stock[1]%}
-                    {%if product[5]=='POULTRY' %}
+                    {%if product[5]=='EGGS' %}
 
         <tr>
             <td> <input type="radio" name="stock" id="Stock{{stock[0]}}"> </td>
@@ -335,11 +336,11 @@
             <th>IN-STOCK</th>
             <th>PERCENTAGE</th>
         </tr>
-        {%for stock in stockdataDesc%}
+        {%for stock in stockdataDesc3%}
         <!-- Specify POULTRY -->
             {%for product in products%}
                 {%if product[0]==stock[1]%}
-                    {%if product[5]=='POULTRY' %}
+                    {%if product[5]=='EGGS' %}
 
         <tr>
             <td> <input type="radio" name="stock" id="Stock{{stock[0]}}"> </td>
@@ -351,9 +352,6 @@
             <td>{{stock[3]}}</td>
             <td>{{product[4]}}</td>
             <td>{{stock[6]}}</td>
-            
-
-            
         </tr>
                     {%endif%}
                 {%endif%}
@@ -373,13 +371,13 @@
             <th>CATEGORY</th>
             <th>QUANTITY</th>
             <th>IN-STOCK</th>
-            <th>PERCENTAGE</th>
+            <th>PERCENTAG3</th>
         </tr>
         {%for stock in stockdataDesc1%}
         <!-- Specify POULTRY -->
             {%for product in products%}
                 {%if product[0]==stock[1]%}
-                    {%if product[5]=='POULTRY' %}
+                    {%if product[5]=='EGGS' %}
 
         <tr>
             <td> <input type="radio" name="stock" id="Stock{{stock[0]}}"> </td>
@@ -444,12 +442,46 @@
     </table>
 
     </div>
+    <div class="container">
+        <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+        {%for day in total_daily_data%}
+         <span style="display:none;" class="day_info" id="day{{day[0]}}" >{{day[0]}}</span>
+         <span style="display:none;" class="Q_info" id="Q{{day[0]}}" >{{day[1]}}</span>
+         
+        {%endfor%}
+    </div>
 </form>
 
 
 
 
 <script>
+const xSource=document.querySelectorAll('.day_info');
+const ySource = document.querySelectorAll('.Q_info');
+const xValues = [];
+const yValues = [];
+for(let i=0;i<ySource.length;i++){
+    xValues.push(xSource[i].innerHTML);
+    yValues.push(ySource[i].innerHTML);
+};
+
+new Chart("myChart", {
+  type: "bar",
+  data: {
+    labels: xValues,
+    datasets: [{
+        backgroundColor:'blue',
+      data: yValues
+    }]
+  },
+  options: {
+    legend: {display: false},
+    title: {
+      display: true,
+      text: "DAILY STOCK MONITOR"
+    }
+  }
+});
 //funcorder
 function toggleTable(showTableId,ColorLabelId, hideTableId,DiscolorLabelId,hideTableId2,DiscolorLabelId2) {
     const showTable = document.getElementById(showTableId);
