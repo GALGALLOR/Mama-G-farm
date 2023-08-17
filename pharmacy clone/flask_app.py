@@ -312,7 +312,8 @@ def products():
                 productId=request.form['productId']
                 productQuantity=int(request.form['Quantity'])
                 initial_Q=productQuantity
-                
+                transaction_cost=request.form['Transaction_cost']
+                transport_cost=request.form['Transport_cost']
                 productBP=request.form['productBP']
                 productSP=request.form['productSP']
 
@@ -366,7 +367,7 @@ def products():
                 cursor.execute('INSERT INTO STOCK_TABLE(STOCK_ID,PRODUCT_ID,STOCK_DATE,QUANTITY,STAFF_ID,BP,PERCENTAGE)VALUES(%s,%s,%s,%s,%s,%s,%s)',(stock_id,productId,today,productQuantity,staffId,productBP,percentage))
                 mydb.connection.commit()
                 # Remove money from the account
-                subtotal=int(productBP)*int(initial_Q)
+                subtotal=(int(productBP)*int(initial_Q))+int(transaction_cost)+ int(transport_cost)
                 try:
                     bank_transaction_id=(bank_data[0][0])+1
                     bank_balance=(bank_data[0][5])-subtotal

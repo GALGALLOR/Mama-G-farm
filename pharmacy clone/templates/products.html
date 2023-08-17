@@ -193,6 +193,8 @@
             <tr><td><label for="">Quantity:</label>     </td><td style="width:100%;" ><input required  type="number" name="Quantity" id="Quantity"><br></td></tr>
             <tr><td><label for="">Unit Buying Price: </label></td><td style="width:100%;" ><input required  name="productBP" id="buyingPrice" value="0" type="number"><br></td></tr>
             <tr><td><label for="">Unit Selling Price: </label></td><td style="width:100%;" ><input required  name="productSP" id="sellingPrice" type="number"><br></td></tr>
+            <tr><td><label style="color:green;" for="">Transport Cost: </label></td><td style="width:100%;" ><input required value="0" name="Transport_cost" id="Transport_cost" type="number"><br></td></tr>
+            <tr><td><label style="color:green;" for="">Transaction Cost: </label></td><td style="width:100%;" ><input required value="0" name="Transaction_cost" id="Transaction_cost" type="number"><br></td></tr>
             
             
             </table><br><br>
@@ -211,7 +213,7 @@
                 <tr><td><label for="">CATEGORY:</label>     </td><td style="width:100%;" >
                     <label for="EGGS">EGGS </label> <input id="EGGS" required  type="radio" value="EGGS" name="category" ><br>
                     <label for="POULTRY">POULTRY </label> <input id="POULTRY" required  type="radio" value="POULTRY" name="category" ><br>
-                    <label for="GARLIC">GARLIC </label> <input id="GARLIC" required  type="radio" value="GARLIC" name="category" ><br>
+                    <label for="CROPS">CROPS </label> <input id="CROPS" required  type="radio" value="CROPS" name="category" ><br>
 
                 </td></tr>
                 <tr><td><label for="">SOURCE:</label>     </td><td style="width:100%;" >
@@ -385,14 +387,26 @@
         //subtotal autoupdate
         var q=document.getElementById("Quantity");
         var bp=document.getElementById('buyingPrice');
+        var Transaction_cost=document.getElementById('Transaction_cost');
+        var Transport_cost = document.getElementById('Transport_cost');
         q.addEventListener('input', function() {
             var to_be= document.getElementById('subtotal_restock');
-            var st=Number(bp.value)*Number(q.value);
+            var st=(Number(bp.value)*Number(q.value))+Number(Transaction_cost.value)+Number(Transport_cost.value);
             to_be.innerHTML=st;
         });
         bp.addEventListener('input', function() {
             var to_be= document.getElementById('subtotal_restock');
-            var st=Number(bp.value)*Number(q.value);
+            var st=(Number(bp.value)*Number(q.value))+Number(Transaction_cost.value)+Number(Transport_cost.value);
+            to_be.innerHTML=st;
+        });
+        Transaction_cost.addEventListener('input', function() {
+            var to_be= document.getElementById('subtotal_restock');
+            var st=(Number(bp.value)*Number(q.value))+Number(Transaction_cost.value)+Number(Transport_cost.value);
+            to_be.innerHTML=st;
+        });
+        Transport_cost.addEventListener('input', function() {
+            var to_be= document.getElementById('subtotal_restock');
+            var st=(Number(bp.value)*Number(q.value))+Number(Transaction_cost.value)+Number(Transport_cost.value);
             to_be.innerHTML=st;
         });
 
