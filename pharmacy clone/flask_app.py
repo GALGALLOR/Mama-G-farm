@@ -1,23 +1,17 @@
 from flask_mysqldb import MySQL
-import os
-from dotenv import load_dotenv, dotenv_values
-
-load_dotenv()
 from flask import  get_flashed_messages, session,Flask,render_template,redirect,request,flash,url_for
 app=Flask(__name__)
 import datetime
+import os
+from dotenv import load_dotenv, dotenv_values
+load_dotenv()
 
 mydb=MySQL(app)
 
-"""app.config['MYSQL_HOST']='PharmacyBG.mysql.pythonanywhere-services.com'
-app.config['MYSQL_USER']='PharmacyBG'
-app.config['MYSQL_PASSWORD']='GALGALLO10'
-app.config['MYSQL_DB']='PharmacyBG$default'"""
-
-app.config['MYSQL_HOST']=os.getenv('host')
-app.config['MYSQL_USER']=os.getenv('user')
-app.config['MYSQL_PASSWORD']=os.getenv('password')
-app.config['MYSQL_DB']=os.getenv('database')
+app.config['MYSQL_HOST']=os.getenv('host2')
+app.config['MYSQL_USER']=os.getenv('user2')
+app.config['MYSQL_PASSWORD']=os.getenv('password2')
+app.config['MYSQL_DB']=os.getenv('database2')
 
 app.secret_key=os.getenv('secret_key')
 
@@ -180,7 +174,7 @@ def order():
             #insert transaction
             if submit=='partial_pay':
                 try:
-                    customer_name=str(request.form['Customer_name'])
+                    customer_name=str(request.form['Customer_name']).upper()
                     amount_paid=str(request.form['Amount_Paid'])
                     amount_rem=int(total_cost)-int(amount_paid)
                     id_number=str(session['id'])
@@ -400,11 +394,11 @@ def products():
                 except:
                     print('WELCOME')
                     ProductId=0
-                ProductName=request.form['productName']
-                Category=request.form['category']
+                ProductName=str(request.form['productName']).upper()
+                Category=str(request.form['category']).upper()
                 ProductCost=request.form['productCost']
                 productQuantity=0
-                source=request.form['source']
+                source=str(request.form['source']).upper()
                 presence='no'
 
                 for product in products:
@@ -479,10 +473,10 @@ def products():
 
 
             elif submit=='NewMember':
-                fullname=request.form['FullName']
+                fullname=str(request.form['FullName']).upper()
                 IdNumber=request.form['IdNumber']
                 contact=request.form['contact']
-                title=request.form['title']
+                title=str(request.form['title']).upper()
                 today=datetime.date.today()
                 
                 cursor.execute('INSERT INTO USERS(USER_ID,TWO_NAMES,TITLE,PHONE_NUMBER,EMPLOYMENT_DATE,ACTIVE)VALUES(%s,%s,%s,%s,%s,%s)',(IdNumber,fullname,title,contact,today,'ON'))
@@ -643,15 +637,37 @@ def store():
     stockdataDesc=cursor.fetchall()
     cursor.execute('SELECT * FROM STOCK_TABLE JOIN PRODUCTS ON PRODUCTS.PRODUCT_ID = STOCK_TABLE.PRODUCT_ID ORDER BY STOCK_DATE DESC,PRODUCT_NAME DESC')
     stockdataDesc1=cursor.fetchall()
-    print(stockdataDesc1)
+    cursor.execute('SELECT * FROM STOCK_TABLE JOIN PRODUCTS ON PRODUCTS.PRODUCT_ID = STOCK_TABLE.PRODUCT_ID ORDER BY STOCK_DATE DESC,SOURCE DESC')
+    stockdataDesc3=cursor.fetchall()
     cursor.execute('SELECT * FROM PRODUCTS ORDER BY STATUS DESC,PRODUCT_ID DESC')
     products=cursor.fetchall()
     
     #set expiry dates
     today=datetime.date.today()
+    #GRAPH
+    #arrange data in daily format
+    #eggs
+    cursor.execute('SELECT * FROM STOCK_TABLE JOIN PRODUCTS ON PRODUCTS.PRODUCT_ID = STOCK_TABLE.PRODUCT_ID WHERE CATEGORY="EGGS" ORDER BY STOCK_DATE DESC,PRODUCT_NAME DESC')
+    stockdataDesc2=cursor.fetchall()
+    total_daily_data=[]
+    date_data=[]
+    QuantityData=[]
+    for stock in stockdataDesc2:
+        if stock[2] in date_data:
+            QuantityData[-1]= QuantityData[-1]+stock[3]
+        else:
+            date_data.append(stock[2])
+            QuantityData.append((stock[3]))
+    
+    i=0
+    while i<len(date_data):
+        total_daily_data.append((date_data[i],QuantityData[i]))
+        i=i+1
+    
+    print(total_daily_data)
     
     
-    return render_template('store.html',stockdataDesc1=stockdataDesc1,today=today,stockdataDesc=stockdataDesc,products=products)
+    return render_template('store.html',stockdataDesc3=stockdataDesc3,total_daily_data=total_daily_data,stockdataDesc1=stockdataDesc1,today=today,stockdataDesc=stockdataDesc,products=products)
 
 @app.route('/bank',methods=['POST','GET'])
 def bank():
@@ -685,10 +701,10 @@ def bank():
     if request.method=='POST':
         submit=request.form['submit']
         if submit=='remove':
-            commodity_type=request.form['commodity_type']
-            commodity_name=request.form['commodity_name']
-            description=request.form['description']        
-            provider=request.form['provider']
+            commodity_type=str(request.form['commodity_type']).upper()
+            commodity_name=str(request.form['commodity_name']).upper()
+            description=str(request.form['description']).upper()
+            provider=str(request.form['provider']).upper()
             quantity=request.form['quantity']
             unit_price=request.form['unit_price']
             transaction_cost=request.form['transaction_cost']
@@ -728,11 +744,35 @@ def bank():
             cashier_id=session['id']
             cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,MODE)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,0,0,new_balance,today,0,amount,cashier_id))
             mydb.connection.commit()
-
-        return redirect(url_for('bank'))
         
 
-    return render_template('Bank.html',cashiers=cashiers,transaction_items=transaction_items,bank_data=bank_data,available=available,stockdata=stockdata,products=products,expenditure=expenditure,transactions=transactions)
+        return redirect(url_for('bank'))
+    #GRAPH
+    #arrange data in MONTHLY format
+    #PROFIT LOSS
+    
+    total_monthly_data=[]
+    date_data=[]
+    ProfitData=[]
+    Lossdata=[]
+    for transaction in bank_data:
+        month=(transaction[7]).month
+        if month in date_data:
+            ProfitData[-1]= ProfitData[-1]+transaction[2]
+            Lossdata[-1]=Lossdata[-1]+transaction[4]
+        else:
+            date_data.append(month)
+            ProfitData.append(transaction[2])
+            Lossdata.append(transaction[4])
+    
+    i=0
+    while i<len(date_data):
+        total_monthly_data.append((date_data[i],ProfitData[i],Lossdata[i]))
+        i=i+1
+    
+    print(total_monthly_data)
+
+    return render_template('Bank.html',total_monthly_data=total_monthly_data,cashiers=cashiers,transaction_items=transaction_items,bank_data=bank_data,available=available,stockdata=stockdata,products=products,expenditure=expenditure,transactions=transactions)
 
 
 if __name__ == '__main__':
