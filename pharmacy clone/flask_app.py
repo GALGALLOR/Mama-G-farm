@@ -68,6 +68,9 @@ def signin():
 @app.route('/order' ,methods=['POST','GET'] )
 def order():
     if 'fullname' in session:
+        time=str(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        print(datetime.datetime.strptime(time,"%Y-%m-%d %H:%M:%S").month)
+        
         fullname=session['fullname']
         cursor=mydb.connection.cursor()
         cursor.execute('SELECT * from TRANSACTION WHERE PARTIAL_PAY="YES"')
@@ -120,7 +123,7 @@ def order():
             last_transaction_id=int(last_transaction_id)+1
             
             
-            sale_date=str(datetime.date.today())
+            sale_date=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             total_cost=0
             #Get stocks_data
             cursor=mydb.connection.cursor()
@@ -159,7 +162,7 @@ def order():
                     cursor.execute('INSERT INTO TRANSACTION_ITEMS(TRANSACTION_ITEM_ID,TRANSACTION_ID,QUANTITY,UNIT_PRICE,PRODUCT_NAME,SUBTOTAL)VALUES(%s,%s,%s,%s,%s,%s)',(last_Titem_id,last_transaction_id,stockID[1],cost,product_name,subtotal))
                     mydb.connection.commit()
                     #insert into SALES
-                    sale_date=datetime.date.today()
+                    sale_date=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                     print(sale_date)
                     
 
@@ -247,7 +250,7 @@ def products():
     if 'fullname' in session:
 
         #date
-        today=datetime.date.today()
+        today=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         #product details
         cursor=mydb.connection.cursor()
         cursor.execute('SELECT * FROM PRODUCTS ORDER BY STATUS DESC,PRODUCT_ID DESC')
@@ -334,7 +337,7 @@ def products():
                     population=0
                     percentage=0
 
-                today=datetime.date.today()
+                today=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 
                 #correction 4/8/2023
                 #fetch today's restocks
@@ -385,7 +388,18 @@ def products():
                     mydb.connection.commit()
 
                     cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,MODE,CATEGORY)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,stock_id,subtotal,bank_balance,today,0,0,"RESTOCK",category))
-                    mydb.connection.commit()           
+                    mydb.connection.commit()    
+                 #Update UserLog
+                cursor.execute('SELECT * FROM USER_LOG ORDER BY LOG_ID DESC')
+                try:
+                    last_log_id=int(cursor.fetchall()[0][0])+1
+                except:
+                    last_log_id=0
+                    print('WELCOME')
+                
+                cursor.execute('INSERT INTO USER_LOG(LOG_ID,STOCK_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,stock_id,staffId,today,'ADD'))
+                mydb.connection.commit()
+                           
                 
                 
             
@@ -478,7 +492,7 @@ def products():
                 IdNumber=request.form['IdNumber']
                 contact=request.form['contact']
                 title=str(request.form['title']).upper()
-                today=datetime.date.today()
+                today=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 
                 cursor.execute('INSERT INTO USERS(USER_ID,TWO_NAMES,TITLE,PHONE_NUMBER,EMPLOYMENT_DATE,ACTIVE)VALUES(%s,%s,%s,%s,%s,%s)',(IdNumber,fullname,title,contact,today,'ON'))
                 mydb.connection.commit()
@@ -644,7 +658,7 @@ def store():
     products=cursor.fetchall()
     
     #set expiry dates
-    today=datetime.date.today()
+    today=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     #GRAPH
     #arrange data in daily format
     #eggs
@@ -676,6 +690,18 @@ def bank():
         pass
     else:
         return redirect(url_for('signin'))
+    #push away cashiers
+    id_number=session['id']
+    cursor = mydb.connection.cursor()
+    cursor.execute(f'SELECT * FROM USERS WHERE USER_ID={id_number}')
+    user_data=cursor.fetchall()[0]
+    if 'anager' in str(user_data[2]):
+        pass
+    elif 'ANAGER' in str(user_data[2]):
+        pass
+    else:
+        return '<h1>ADMINS ONLY</h1><br><h1><a href="/order"><CENTER>GO BACK</CENTER> </a></h1>'
+    #end of pushing away
     cursor = mydb.connection.cursor()
     cursor.execute('SELECT * FROM ACCOUNT ORDER BY BANK_TRANSACTION_ID DESC')
     bank_data=cursor.fetchall()
@@ -692,6 +718,9 @@ def bank():
     transaction_items=cursor.fetchall()
     cursor.execute('SELECT * FROM USERS')
     cashiers=cursor.fetchall()
+    cursor.execute('SELECT * FROM USER_LOG')
+    user_logs=cursor.fetchall()
+
 
     try:
         available=bank_data[0][5]
@@ -715,7 +744,7 @@ def bank():
                 expenditure_id=int(expenditure[0][0])+1
             except:
                 print('WELCOME')
-            date=datetime.date.today()
+            date=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
             cashier_id=session['id']
             cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL,CASHIER_ID)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,date,commodity_type,commodity_name,description,provider,quantity,unit_price,transport_cost,transaction_cost,subtotal,cashier_id))
@@ -741,7 +770,7 @@ def bank():
                 bank_transaction_id=0
                 new_balance=0
 
-            today=datetime.date.today()
+            today=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             cashier_id=session['id']
             cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,MODE)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,0,0,new_balance,today,0,amount,cashier_id))
             mydb.connection.commit()
@@ -757,7 +786,8 @@ def bank():
     ProfitData=[]
     Lossdata=[]
     for transaction in bank_data:
-        month=(transaction[7]).month
+        month=datetime.datetime.strptime(str(transaction[7]),"%Y-%m-%d %H:%M:%S").month
+        
         if month in date_data:
             ProfitData[-1]= ProfitData[-1]+transaction[2]
             Lossdata[-1]=Lossdata[-1]+transaction[4]
@@ -773,7 +803,7 @@ def bank():
     
     print(total_monthly_data)
 
-    return render_template('Bank.html',total_monthly_data=total_monthly_data,cashiers=cashiers,transaction_items=transaction_items,bank_data=bank_data,available=available,stockdata=stockdata,products=products,expenditure=expenditure,transactions=transactions)
+    return render_template('Bank.html',user_logs=user_logs,total_monthly_data=total_monthly_data,cashiers=cashiers,transaction_items=transaction_items,bank_data=bank_data,available=available,stockdata=stockdata,products=products,expenditure=expenditure,transactions=transactions)
 
 
 if __name__ == '__main__':

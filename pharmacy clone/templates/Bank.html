@@ -445,6 +445,77 @@
         </span>
         
     </div>
+    <table>
+    <tr>
+        <th>DATE</th>
+        <th>NAME</th>
+        <th>ACTIVITY</th>
+    </tr>
+    <tr>
+        {%for log in user_logs %}
+        <td>{{log[6]}}</td>
+        <td>{%for cashier in cashiers%}
+            {%if cashier[0]==log[1] %}
+            {{cashier[1]}}
+            {%endif%}
+            {%endfor%}
+        </td>
+        
+        <td>
+            {%if log[5]=='ADD'%}
+            {%if log[2]>0 %}
+            RESTOCKED STOCK_ID:
+            {{log[2]}}
+            {%elif log[3] >0 %}
+            ADDED PRODUCT {{log[3]}}
+            {%elif log[4] >0 %}
+            ADDED MEMBER {{log[4]}}
+            {%else%}
+            h
+            {%endif%}
+            {%endif%}
+
+            {%if log[5]=='DELETE'%}
+            {%if log[2]>0 %}
+            DELETED STOCK {{log[2]}}
+            {%elif log[3] >0 %}
+            DELETED PRODUCT {{log[3]}}
+            {%elif log[4] >0 %}
+            DELETED MEMBER {{log[4]}}
+            {%else%}
+            h
+            {%endif%}
+            {%endif%}
+        </td>
+        {%endfor%}
+    </tr>
+    
+    <tr> 
+        <td> 2023-01-01 12:03:12 </td> 
+        <td> GALGALLO ROBA </td>
+        <td> RESTOCKED 600 UNITS OF ROOM 1 CHICKEN </td>
+     </tr>
+     <tr> 
+        <td> 2023-01-01 12:03:12 </td> 
+        <td> GALGALLO ROBA </td>
+        <td> ADDED A NEW PRODUCT: SIX 2 </td>
+     </tr>
+     <tr> 
+        <td> 2023-01-01 12:03:12 </td> 
+        <td> GALGALLO ROBA </td>
+        <td> FIRED AHMEDNOOR IBRAHIM </td>
+     </tr>
+     <tr> 
+        <td> 2023-01-01 12:03:12 </td> 
+        <td> GALGALLO ROBA </td>
+        <td> RESTOCKED 600 UNITS OF ROOM 1 CHICKEN </td>
+     </tr>
+     <tr> 
+        <td> 2023-01-01 12:03:12 </td> 
+        <td> GALGALLO ROBA </td>
+        <td> ADDED A NEW PRODUCT: SIX 2 </td>
+     </tr>
+    </table>
     
 </body>
 
