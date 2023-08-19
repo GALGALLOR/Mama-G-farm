@@ -211,20 +211,18 @@
                 
                 <tr><td><label for="">PRODUCT NAME: </label></td><td style="width:100%;" ><input required  name="productName" type="text"><br></td></tr>
                 <tr><td><label for="">CATEGORY:</label>     </td><td style="width:100%;" >
-                    <label for="EGGS">EGGS </label> <input id="EGGS" required  type="radio" value="EGGS" name="category" ><br>
                     <label for="POULTRY">POULTRY </label> <input id="POULTRY" required  type="radio" value="POULTRY" name="category" ><br>
                     <label for="CROPS">CROPS </label> <input id="CROPS" required  type="radio" value="CROPS" name="category" ><br>
 
                 </td></tr>
                 <tr><td><label for="">SOURCE:</label>     </td><td style="width:100%;" >
                    <br>
+                   <select name="source" id="source">
+                   <option value="outside">outside</option>
                     {%for product in products_active%}
-                    <label for="source{{product[0]}}">{{product[1]}}</label>
-                    <input required id="source{{product[0]}}"  type="radio" value="{{product[1]}}" name="source" ><br>
-                    
+                    <option value="{{product[1]}}">{{product[1]}}</option>
                     {%endfor%}
-                    <label for="other_s"> outside </label>
-                    <input type="radio" name="source" id="other_s" value="other" ><br>
+                    </select>
                     <br>
                  </td></tr>
                 <tr><td><label for="">To-sell price : </label></td><td style="width:100%;" ><input required  type="number" name="productCost"><br></td></tr>

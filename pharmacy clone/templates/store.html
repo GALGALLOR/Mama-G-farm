@@ -300,7 +300,7 @@
         <!-- Specify POULTRY -->
             {%for product in products%}
                 {%if product[0]==stock[1]%}
-                    {%if product[5]=='EGGS' %}
+                    {%if 'TRAY' in product[1] %}
 
         <tr>
             <td> <input type="radio" name="stock" id="Stock{{stock[0]}}"> </td>
@@ -340,7 +340,7 @@
         <!-- Specify POULTRY -->
             {%for product in products%}
                 {%if product[0]==stock[1]%}
-                    {%if product[5]=='EGGS' %}
+                    {%if 'TRAY' in product[1] %}
 
         <tr>
             <td> <input type="radio" name="stock" id="Stock{{stock[0]}}"> </td>
@@ -377,7 +377,7 @@
         <!-- Specify POULTRY -->
             {%for product in products%}
                 {%if product[0]==stock[1]%}
-                    {%if product[5]=='EGGS' %}
+                    {%if 'TRAY' in product[1] %}
 
         <tr>
             <td> <input type="radio" name="stock" id="Stock{{stock[0]}}"> </td>
@@ -417,7 +417,7 @@
         <!-- Specify POULTRY -->
             {%for product in products%}
                 {%if product[0]==stock[1]%}
-                    {%if product[5] !='EGGS' %}
+                    {%if 'TRAY' not in product[1] %}
 
         <tr>
             <td> <input type="radio" name="stock" id="Stock{{stock[0]}}"> </td>

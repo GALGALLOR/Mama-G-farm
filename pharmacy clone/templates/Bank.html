@@ -383,7 +383,8 @@
             
           
             
-        </table><button id="nextButton" >more</button>
+        </table><button id="nextButton" >next</button>
+        <button id="back_table" >back</button>
 
             <!-- Form for removing money -->
             <form method="post"  id="removeForm">
@@ -423,7 +424,11 @@
                 </tr>
                 <tr>
                     <td><label for="category_">CATEGORY</label></td>
-                    <td><input placeholder="Poultry/Crops" type="text" name="category" id="category_"></td>
+                    <td> <select name="category" id="category_">
+                        <option value="other" >other</option>
+                        <option value="crops">crops</option>
+                        <option value="poultry">poultry</option>
+                    </select> </td>
                 </tr>
                 
                 </table>
@@ -440,8 +445,12 @@
                         <td><input type="number" required placeholder="Ksh : " name="amount_to_deposit" id="Amount_to_Deposit"></td>
                     </tr>
                     <tr>
-                        <td><label for="category__">CATEGORY</label></td>
-                        <td><input placeholder="Poultry/Crops" type="text" name="category" id="category__"></td>
+                        <td><label for="category_">CATEGORY</label></td>
+                        <td> <select name="category" id="category_">
+                            <option value="other" > other </option>
+                            <option value="crops">crops</option>
+                            <option value="poultry">poultry</option>
+                        </select> </td>
                     </tr>
                 </table>
                 <button   style="background:rgb(9, 255, 0);" value="deposit" name="submit" type="submit">Deposit</button>
@@ -626,11 +635,27 @@ function nextPage() {
     }
     displayRows();
 }
+function backPage() {
+    if(currentPage<2){
+        currentPage=currentPage;
+    }
+    else{
+
+    
+    currentPage=currentPage-1;
+    };
+    if (currentPage > Math.ceil(tableRows.length / rowsPerPage)) {
+        currentPage = 1; // Loop back to the first page
+    }
+    displayRows();
+}
 
 // Add an event listener to the "Next" button
 const nextButton = document.getElementById("nextButton");
 nextButton.addEventListener("click", nextPage);
 //popup
+const backButton = document.getElementById('back_table');
+backButton.addEventListener('click',backPage)
 
 </script>
 </html>

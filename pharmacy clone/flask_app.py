@@ -331,9 +331,9 @@ def products():
                     cursor.execute('SELECT * FROM PRODUCTS WHERE PRODUCT_NAME="'+str(sources[6])+'" AND STATUS="YES" ORDER BY PRODUCT_ID DESC')
                     population1=cursor.fetchall()
                     population=population1[0][4]
-                    if 'trays' in product_name:
+                    if 'tray' in product_name:
                         percentage=(30*productQuantity)*100/int(population)
-                    elif 'TRAYS' in product_name:
+                    elif 'TRAY' in product_name:
                         percentage=(30*productQuantity)*100/int(population)
                     else:
                         percentage=productQuantity*100/int(population)
@@ -382,7 +382,7 @@ def products():
                 except:
                     print('WELCOME')
                     bank_transaction_id=0
-                    bank_balance=0
+                    bank_balance=0-subtotal
                     expenditure_id=0
                 if subtotal==0:
                     pass
@@ -510,7 +510,13 @@ def products():
                 mydb.connection.commit()
                         
             elif submit=='delete_Member':
-                memberId=request.form['memberID']
+                memberId=str(request.form['memberID'])
+                cashier_id=str(session['id'])
+                if memberId==cashier_id:
+                    print('CANNOT DELETE YOURSELF')
+                    return redirect(url_for('products'))
+                else:
+                    pass
                 cursor.execute('UPDATE USERS SET ACTIVE="OFF" WHERE USER_ID="'+memberId+'"')
                 mydb.connection.commit()
                 #Update UserLog
@@ -669,8 +675,10 @@ def store():
     #GRAPH
     #arrange data in daily format
     #eggs
-    cursor.execute('SELECT * FROM STOCK_TABLE JOIN PRODUCTS ON PRODUCTS.PRODUCT_ID = STOCK_TABLE.PRODUCT_ID WHERE CATEGORY="EGGS" ORDER BY STOCK_DATE DESC,PRODUCT_NAME DESC')
+    date=today[0:6]
+    cursor.execute(f'SELECT * FROM STOCK_TABLE LEFT JOIN PRODUCTS ON PRODUCTS.PRODUCT_ID = STOCK_TABLE.PRODUCT_ID WHERE PRODUCTS.PRODUCT_NAME LIKE "%TRAY%" AND STOCK_TABLE.STOCK_DATE LIKE "%{date}%" ORDER BY STOCK_DATE DESC,PRODUCT_NAME DESC')
     stockdataDesc2=cursor.fetchall()
+    print(stockdataDesc2)
     total_daily_data=[]
     date_data=[]
     QuantityData=[]
