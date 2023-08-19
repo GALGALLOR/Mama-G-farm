@@ -2,21 +2,18 @@ from flask_mysqldb import MySQL
 from flask import  get_flashed_messages, session,Flask,render_template,redirect,request,flash,url_for
 app=Flask(__name__)
 import datetime
-
+import os
+from dotenv import load_dotenv, dotenv_values
+load_dotenv()
 
 mydb=MySQL(app)
 
-"""app.config['MYSQL_HOST']='PharmacyBG.mysql.pythonanywhere-services.com'
-app.config['MYSQL_USER']='PharmacyBG'
-app.config['MYSQL_PASSWORD']='GALGALLO10'
-app.config['MYSQL_DB']='PharmacyBG$default'"""
+app.config['MYSQL_HOST']=os.getenv('host2')
+app.config['MYSQL_USER']=os.getenv('user2')
+app.config['MYSQL_PASSWORD']=os.getenv('password2')
+app.config['MYSQL_DB']=os.getenv('database2')
 
-app.config['MYSQL_HOST']='localhost'
-app.config['MYSQL_USER']='root'
-app.config['MYSQL_PASSWORD']='GALGALLO10'
-app.config['MYSQL_DB']='MAMA_G'
-
-app.secret_key='mimi'
+app.secret_key=os.getenv('secret_key')
 
 @app.route('/')
 def home():
