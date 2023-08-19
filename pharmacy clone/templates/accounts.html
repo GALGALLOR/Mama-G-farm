@@ -135,8 +135,9 @@
         </div>
         
     </div>
-    <h1>CASHIERS</h1>
+    
     {%if user[2] == "MANAGER" %}
+    <h1>CASHIERS</h1>
     <div class="cashiers">
         <ul>
             {%for cashier in cashiers%}
@@ -144,7 +145,6 @@
             {%endfor%}
         </ul>
     </div>
-    {%endif%}
     <table>
         <tr>
             <th>DATE</th>
@@ -179,5 +179,6 @@
         </tr>{%endfor%}
         
         </table>
+        {%endif%}
 </body>
 </html>
