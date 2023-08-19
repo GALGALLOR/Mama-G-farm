@@ -145,6 +145,39 @@
         </ul>
     </div>
     {%endif%}
-    
+    <table>
+        <tr>
+            <th>DATE</th>
+            <th>NAME</th>
+            <th>ACTIVITY</th>
+        </tr>
+        {%for log in user_logs%}
+        <tr>
+            
+            <td>{{log[0]}}</td>
+            <td>{{log[1]}}</td>
+            {%if log[2]== 'RESTOCKED' %}
+            <td>{{log[2]}} ID: {{log[4]}} </td>
+            {%elif log[2]== 'DELETED STOCK' %}
+            <td>{{log[2]}} ID: {{log[4]}} </td>
+            {%elif log[2]== 'ADDED PRODUCT' %}
+            <td>{{log[2]}} : {{log[3]}} </td>
+            {%elif log[2]== 'DELETED PRODUCT' %}
+            <td>{{log[2]}} : {{log[3]}} </td>
+            {%elif log[2]== 'DELETED MEMBER' %}
+            <td>{{log[2]}} : {{log[5]}} </td>
+            {%elif log[2]== 'ADDED MEMBER' %}
+            <td>{{log[2]}} : {{log[5]}} </td>
+            {%elif log[2]== 'REACTIVATED MEMBER' %}
+            <td>{{log[2]}} : {{log[5]}} </td>
+            {%elif log[2]== 'REACTIVATED PRODUCT' %}
+            <td>{{log[2]}} : {{log[3]}} </td>
+            {%else%}
+            <td>error at {{log[2]}} </td>
+            {%endif%}
+            
+        </tr>{%endfor%}
+        
+        </table>
 </body>
 </html>

@@ -298,13 +298,15 @@
         <div class="receipt">
             Total Amount: <h1 id="TotalCost2" >00.00</h1> <input type="number" style="display:none;font-size:50px;width:5cm;" name="TotalCost" id="TotalCost" value="00.00">
             <br>
-            <label for="startOrder" id="cancelOrder">Cancel Button</label>
-            <button style="background:rgb(18, 92, 6)" name="submit" value="buyNow">BUY NOW</button><br><br>
+            
             <!-- PARTIAL PAY -->
 
-            <div class="partial_pay">
-                <input  type="text" required placeholder="Customer Name" name="Customer_name" id="Customer_name"><br><br>
-                <br><br><br>
+            
+                <input style="width:50%;" class="partial_pay" autocomplete="on" type="text" required placeholder="Customer Name" name="Customer_name" id="Customer_name"><br>
+                <input style="width:50%;" class="partial_pay" autocomplete="on" type="text" required placeholder="Phone Number" name="Customer_number" id="Customer_number"><br><br>
+                <label for="startOrder" id="cancelOrder">Cancel Button</label>
+            <button style="background:rgb(18, 92, 6)" name="submit" value="buyNow">BUY NOW</button><br><br>
+                <br><br><br><div class="partial_pay">
                 <input type="number" name="Amount_Paid" id="Amount_Paid" placeholder="CURRENT AMOUNT">
                 <button style="background:rgb(89, 6, 92)" name="submit" value="partial_pay">PARTIAL PAY</button>
             </div>
@@ -328,6 +330,7 @@
                 <th>Items Bought:</th>
                 <th>Partial Pay:</th>
                 <th>CUSTOMER NAME</th>
+                <th>CONTACT</th>
             </tr>
             <!-- Partial Payers -->
             {% for partial_pay in partial_pay_data %}
@@ -353,6 +356,9 @@
                     <td>
                         <li>{{partial_pay[5]}}</li>
                     </td>
+                    <td>
+                        0759274504
+                    </td>
                 
             </tr>
             {%endfor%}
@@ -370,6 +376,7 @@
                 </td>
                 <td>NO</td>
                 <td>{{transaction[5]}}</td>
+                <td>{{transaction[7]}}</td>
             </tr>
             {%endfor%}
             

@@ -15,6 +15,7 @@ app.config['MYSQL_DB']=os.getenv('database2')
 
 app.secret_key=os.getenv('secret_key')
 
+
 @app.route('/')
 def home():
     if 'fullname' in session:
@@ -144,6 +145,8 @@ def order():
                     cost_product_name=cursor.fetchall()
                     print(' product is ',cost_product_name)
                     cost=cost_product_name[0][3]
+                    #Find CATEGORY
+                    category=cost_product_name[0][5]
                     product_name=str(cost_product_name[0][1])
                     #Get subtotal
                     subtotal=int(cost)*int(stockID[1])
@@ -178,21 +181,22 @@ def order():
             if submit=='partial_pay':
                 try:
                     customer_name=str(request.form['Customer_name']).upper()
+                    customer_number=str(request.form['Customer_number'])
                     amount_paid=str(request.form['Amount_Paid'])
                     amount_rem=int(total_cost)-int(amount_paid)
                     id_number=str(session['id'])
-                    cursor.execute('INSERT INTO TRANSACTION(TRANSACTION_ID,CASHIER_ID,SALE_DATE,TOTAL_SALES,PARTIAL_PAY,PARTIAL_PAYER,AMOUNT_REM)VALUES(%s,%s,%s,%s,%s,%s,%s)',(last_transaction_id,id_number,sale_date,total_cost,'YES',customer_name,amount_rem))
+                    cursor.execute('INSERT INTO TRANSACTION(TRANSACTION_ID,CASHIER_ID,SALE_DATE,TOTAL_SALES,PARTIAL_PAY,PARTIAL_PAYER,AMOUNT_REM,CONTACT)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(last_transaction_id,id_number,sale_date,total_cost,'YES',customer_name,amount_rem,customer_number))
                     mydb.connection.commit()
                 except:
                     pass
 
             else:
+                customer_name=str(request.form['Customer_name']).upper()
+                customer_number=str(request.form['Customer_number'])
                 id_number=str(session['id'])
-                cursor.execute('INSERT INTO TRANSACTION(TRANSACTION_ID,CASHIER_ID,SALE_DATE,TOTAL_SALES,PARTIAL_PAY)VALUES(%s,%s,%s,%s,%s)',(last_transaction_id,id_number,sale_date,total_cost,'NO'))
+                cursor.execute('INSERT INTO TRANSACTION(TRANSACTION_ID,CASHIER_ID,SALE_DATE,TOTAL_SALES,PARTIAL_PAY,PARTIAL_PAYER,CONTACT)VALUES(%s,%s,%s,%s,%s,%s,%s)',(last_transaction_id,id_number,sale_date,total_cost,'NO',customer_name,customer_number))
                 mydb.connection.commit()
-            #Submit into the account
-            #Find CATEGORY
-            
+            #Submit into the account            
             cursor.execute('SELECT * from ACCOUNT ORDER BY BANK_TRANSACTION_ID DESC')
             Bank_Account=cursor.fetchall()
             try:
@@ -202,7 +206,7 @@ def order():
                 print('WELCOME')
                 Bank_balance=0
                 last_bank_id=0
-            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,TRANSACTION_ID,AMOUNT_IN,BALANCE,DATE,EXPENSE_ID,AMOUNT_OUT,MODE,CATEGORY)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(last_bank_id,last_transaction_id,subtotal,Bank_balance,sale_date,0,0,"TRANSACTION",''))
+            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,TRANSACTION_ID,AMOUNT_IN,BALANCE,DATE,EXPENSE_ID,AMOUNT_OUT,MODE,CATEGORY)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(last_bank_id,last_transaction_id,subtotal,Bank_balance,sale_date,0,0,"TRANSACTION",category))
             mydb.connection.commit()
             
             
@@ -384,7 +388,7 @@ def products():
                     pass
                 else:
                     cashier_id=session['id']
-                    cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL,CASHIER_ID,STOCK_ID)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,today,'RESTOCK',' ','','',initial_Q,productBP,0,0,subtotal,cashier_id,stock_id))
+                    cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL,CASHIER_ID,STOCK_ID,CATEGORY)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,today,'RESTOCK',' ','','',initial_Q,productBP,0,0,subtotal,cashier_id,stock_id,category))
                     mydb.connection.commit()
 
                     cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,MODE,CATEGORY)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,stock_id,subtotal,bank_balance,today,0,0,"RESTOCK",category))
@@ -397,7 +401,7 @@ def products():
                     last_log_id=0
                     print('WELCOME')
                 
-                cursor.execute('INSERT INTO USER_LOG(LOG_ID,STOCK_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,stock_id,staffId,today,'ADD'))
+                cursor.execute('INSERT INTO USER_LOG(LOG_ID,STOCK_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,stock_id,staffId,today,'RESTOCKED'))
                 mydb.connection.commit()
                            
                 
@@ -433,7 +437,7 @@ def products():
                         last_log_id=0
                         print('WELCOME')
                     
-                    cursor.execute('INSERT INTO USER_LOG(LOG_ID,PRODUCT_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,ProductId,staffId,today,'ADD'))
+                    cursor.execute('INSERT INTO USER_LOG(LOG_ID,PRODUCT_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,ProductId,staffId,today,'ADDED PRODUCT'))
                     mydb.connection.commit()
                     
                 else:
@@ -451,7 +455,7 @@ def products():
                     last_log_id=int(cursor.fetchall()[0][0])+1
                 except:
                     last_log_id=0
-                cursor.execute('INSERT INTO USER_LOG(LOG_ID,PRODUCT_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,productId,staffId,today,'DELETE'))
+                cursor.execute('INSERT INTO USER_LOG(LOG_ID,PRODUCT_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,productId,staffId,today,'DELETED PRODUCT'))
                 mydb.connection.commit()
             
             elif submit=='activate_product':
@@ -467,7 +471,7 @@ def products():
                     last_log_id=int(cursor.fetchall()[0][0])+1
                 except:
                     last_log_id=0
-                cursor.execute('INSERT INTO USER_LOG(LOG_ID,PRODUCT_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,productId,staffId,today,'ADD'))
+                cursor.execute('INSERT INTO USER_LOG(LOG_ID,PRODUCT_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,productId,staffId,today,'REACTIVATED PRODUCT'))
                 mydb.connection.commit()
                 
                 
@@ -483,7 +487,7 @@ def products():
                     last_log_id=int(cursor.fetchall()[0][0])+1
                 except:
                     last_log_id=0
-                cursor.execute('INSERT INTO USER_LOG(LOG_ID,STOCK_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,StockId,staffId,today,'DELETE'))
+                cursor.execute('INSERT INTO USER_LOG(LOG_ID,STOCK_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,StockId,staffId,today,'DELETED STOCK'))
                 mydb.connection.commit()
 
 
@@ -502,7 +506,7 @@ def products():
                     last_log_id=int(cursor.fetchall()[0][0])+1
                 except:
                     last_log_id=0
-                cursor.execute('INSERT INTO USER_LOG(LOG_ID,MEMBER_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,IdNumber,staffId,today,'ADD'))
+                cursor.execute('INSERT INTO USER_LOG(LOG_ID,MEMBER_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,IdNumber,staffId,today,'ADDED MEMBER'))
                 mydb.connection.commit()
                         
             elif submit=='delete_Member':
@@ -515,7 +519,7 @@ def products():
                     last_log_id=int(cursor.fetchall()[0][0])+1
                 except:
                     last_log_id=0
-                cursor.execute('INSERT INTO USER_LOG(LOG_ID,MEMBER_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,memberId,staffId,today,'DELETE'))
+                cursor.execute('INSERT INTO USER_LOG(LOG_ID,MEMBER_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,memberId,staffId,today,'DELETED MEMBER'))
                 mydb.connection.commit()
 
             elif submit=='ACTIVATE':
@@ -528,7 +532,7 @@ def products():
                     last_log_id=int(cursor.fetchall()[0][0])+1
                 except:
                     last_log_id=0
-                cursor.execute('INSERT INTO USER_LOG(LOG_ID,MEMBER_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,memberId,staffId,today,'ADD'))
+                cursor.execute('INSERT INTO USER_LOG(LOG_ID,MEMBER_ID,USER_ID,DATE,ACTIVITY)VALUES(%s,%s,%s,%s,%s)',(last_log_id,memberId,staffId,today,'REACTIVATED MEMBER'))
                 mydb.connection.commit()
             
 
@@ -559,22 +563,23 @@ def accounts():
             cursor.execute(f'SELECT COUNT(*) FROM TRANSACTION WHERE CASHIER_ID={user_id}')
             Products_Sold=cursor.fetchall()[0][0]
 
-            cursor.execute(f'SELECT COUNT(PRODUCT_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="DELETE" ')
+            cursor.execute(f'SELECT COUNT(PRODUCT_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="DELETED PRODUCT" ')
             Products_deleted=cursor.fetchall()[0][0]
 
-            cursor.execute(f'SELECT COUNT(PRODUCT_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="ADD" ')
+            cursor.execute(f'SELECT COUNT(PRODUCT_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="ADDED PRODUCT" ')
             Products_added=cursor.fetchall()[0][0]
 
-            cursor.execute(f'SELECT COUNT(STOCK_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="DELETE" ')
+            cursor.execute(f'SELECT COUNT(STOCK_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="DELETED STOCK" ')
             stocks_Deleted=cursor.fetchall()[0][0]
 
 
-            cursor.execute(f'SELECT COUNT(MEMBER_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="ADD" ')
+            cursor.execute(f'SELECT COUNT(MEMBER_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="ADDED MEMBER" ')
             members_added=cursor.fetchall()[0][0]
 
-            cursor.execute(f'SELECT COUNT(MEMBER_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="DELETE" ')
+            cursor.execute(f'SELECT COUNT(MEMBER_ID) FROM USER_LOG WHERE USER_ID={user_id} AND ACTIVITY="DELETED MEMBER" ')
             members_deleted=cursor.fetchall()[0][0]
-
+            cursor.execute('SELECT al.DATE,u.TWO_NAMES AS user_name,al.ACTIVITY,p.PRODUCT_NAME,al.STOCK_ID, al.MEMBER_ID, al.LOG_ID FROM USER_LOG al LEFT JOIN USERS u ON al.USER_ID = u.USER_ID LEFT JOIN PRODUCTS p ON al.PRODUCT_ID = p.PRODUCT_ID LEFT JOIN STOCK_TABLE st ON al.STOCK_ID = st.STOCK_ID ORDER BY DATE DESC;')
+            user_logs=cursor.fetchall()
             
         except:
             print('WELCOME')
@@ -585,6 +590,8 @@ def accounts():
             Products_added=0
             stocks_Deleted=0
             members_added=0
+            members_deleted=0
+            user_logs=[]
         cursor.execute(f'SELECT * FROM USERS ')
         cashiers=cursor.fetchall()
         cursor.execute(f'SELECT * FROM USERS WHERE USER_ID={user_id}')
@@ -592,7 +599,7 @@ def accounts():
 
     else:
         return redirect(url_for('signin'))
-    return render_template('accounts.html',cashiers=cashiers,user=user,members_deleted=members_deleted,members_added=members_added,stocks_Deleted=stocks_Deleted,Products_added=Products_added,Products_deleted=Products_deleted,Products_Sold=Products_Sold,RestocksMade=RestocksMade)
+    return render_template('accounts.html',user_logs=user_logs,cashiers=cashiers,user=user,members_deleted=members_deleted,members_added=members_added,stocks_Deleted=stocks_Deleted,Products_added=Products_added,Products_deleted=Products_deleted,Products_Sold=Products_Sold,RestocksMade=RestocksMade)
 
 @app.route('/<cashier_id>' ,methods=['POST','GET'] )
 def accounts_cashier(cashier_id):
@@ -617,17 +624,17 @@ def accounts_cashier(cashier_id):
         cursor.execute(f'SELECT COUNT(PRODUCT_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="DELETE" ')
         Products_deleted=cursor.fetchall()[0][0]
 
-        cursor.execute(f'SELECT COUNT(PRODUCT_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="ADD" ')
+        cursor.execute(f'SELECT COUNT(PRODUCT_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="ADDED PRODUCT" ')
         Products_added=cursor.fetchall()[0][0]
 
-        cursor.execute(f'SELECT COUNT(STOCK_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="DELETE" ')
+        cursor.execute(f'SELECT COUNT(STOCK_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="DELETED STOCK" ')
         stocks_Deleted=cursor.fetchall()[0][0]
 
 
-        cursor.execute(f'SELECT COUNT(MEMBER_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="ADD" ')
+        cursor.execute(f'SELECT COUNT(MEMBER_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="ADDED MEMBER" ')
         members_added=cursor.fetchall()[0][0]
 
-        cursor.execute(f'SELECT COUNT(MEMBER_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="DELETE" ')
+        cursor.execute(f'SELECT COUNT(MEMBER_ID) FROM USER_LOG WHERE USER_ID={cashier_id} AND ACTIVITY="DELETED MEMBER" ')
         members_deleted=cursor.fetchall()[0][0]
 
         cursor.execute(f'SELECT * FROM USERS WHERE TITLE="CASHIER" ')
@@ -718,8 +725,6 @@ def bank():
     transaction_items=cursor.fetchall()
     cursor.execute('SELECT * FROM USERS')
     cashiers=cursor.fetchall()
-    cursor.execute('SELECT * FROM USER_LOG')
-    user_logs=cursor.fetchall()
 
 
     try:
@@ -740,6 +745,7 @@ def bank():
             transaction_cost=request.form['transaction_cost']
             transport_cost=request.form['transport_cost']
             subtotal=(int(quantity)*int(unit_price))+int(transaction_cost)+int(transport_cost)
+            category=request.form['category']
             try:
                 expenditure_id=int(expenditure[0][0])+1
             except:
@@ -747,7 +753,7 @@ def bank():
             date=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
             cashier_id=session['id']
-            cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL,CASHIER_ID)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,date,commodity_type,commodity_name,description,provider,quantity,unit_price,transport_cost,transaction_cost,subtotal,cashier_id))
+            cursor.execute('INSERT INTO EXPENDITURE(EXPENDITURE_ID,DATE,COMMODITY_TYPE,COMMODITY_NAME,DESCRIPTION,PROVIDER,QUANTITY,UNIT_PRICE,TRANSPORT_COST,TRANSACTION_COST,SUBTOTAL,CASHIER_ID,CATEGORY)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)',(expenditure_id,date,commodity_type,commodity_name,description,provider,quantity,unit_price,transport_cost,transaction_cost,subtotal,cashier_id,category))
             mydb.connection.commit()
             try:
                 bank_transaction_id=(bank_data[0][0])+1
@@ -757,11 +763,12 @@ def bank():
                 bank_transaction_id=0
                 bank_balance=0
 
-            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,MODE)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,expenditure_id,subtotal,bank_balance,date,0,0,"EXPENSE"))
+            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,MODE,CATEGORY)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,expenditure_id,subtotal,bank_balance,date,0,0,"EXPENSE",category))
             mydb.connection.commit()
         
         if submit=='deposit':
             amount=int(request.form['amount_to_deposit'])
+            category=request.form['category']
             try:
                 new_balance=int((bank_data[0][5]))+ int (amount)
                 bank_transaction_id=(bank_data[0][0])+1
@@ -772,7 +779,7 @@ def bank():
 
             today=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             cashier_id=session['id']
-            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,MODE)VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,0,0,new_balance,today,0,amount,cashier_id))
+            cursor.execute('INSERT INTO ACCOUNT(BANK_TRANSACTION_ID,EXPENSE_ID,AMOUNT_OUT,BALANCE,DATE,TRANSACTION_ID,AMOUNT_IN,MODE,CATEGORY)VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s)',(bank_transaction_id,0,0,new_balance,today,0,amount,cashier_id,category))
             mydb.connection.commit()
         
 
@@ -801,9 +808,35 @@ def bank():
         total_monthly_data.append((date_data[i],ProfitData[i],Lossdata[i]))
         i=i+1
     
-    print(total_monthly_data)
+    #Based on Individual categories eg Poultry and Crops
+    def calculate_monthly_category_totals(data_list):
+        monthly_category_totals = {}
 
-    return render_template('Bank.html',user_logs=user_logs,total_monthly_data=total_monthly_data,cashiers=cashiers,transaction_items=transaction_items,bank_data=bank_data,available=available,stockdata=stockdata,products=products,expenditure=expenditure,transactions=transactions)
+        for row in data_list:  # Skip the header row assuming it's in index 0
+            month=datetime.datetime.strptime(str(row[7]),"%Y-%m-%d %H:%M:%S").month
+            category = row[8]
+            try:
+                profit = float(row[2])  # Assuming profit is in column 9
+                loss = float(row[4])   # Assuming loss is in column 10
+            except:
+                profit=0
+                loss=0
+
+            key = (month, category)
+
+            if key not in monthly_category_totals:
+                monthly_category_totals[key] = {'profit': 0.0, 'loss': 0.0}
+
+            monthly_category_totals[key]['profit'] += profit
+            monthly_category_totals[key]['loss'] += loss
+
+        return monthly_category_totals
+    monthly_category_totals = calculate_monthly_category_totals(bank_data)    
+    for key,totals in monthly_category_totals.items():
+        print(key,totals)
+
+
+    return render_template('Bank.html',monthly_category_totals=monthly_category_totals,total_monthly_data=total_monthly_data,cashiers=cashiers,transaction_items=transaction_items,bank_data=bank_data,available=available,stockdata=stockdata,products=products,expenditure=expenditure,transactions=transactions)
 
 
 if __name__ == '__main__':

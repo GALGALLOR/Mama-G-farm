@@ -293,18 +293,21 @@
                         <h1 style="color:red;" ><label for="pop{{b[0]}}">CREDIT VIEW</label></h1>
                         <table>
                                 <tr> <td>BANK TRANSACTION ID :</td> <td>{{b[0]}} </td></tr>
-                                <tr> <td>DATE</td> <td>                 {{b[0]}} </td></tr>
+                                <tr> <td>DATE</td> <td>                 {{b[7]}} </td></tr>
                                 <tr> <td> EXPENDITURE ID: </td> <td>    {{expense[0]}} </td></tr>
-                                <tr> <td> COMMODITY TYPE : </td> <td>   {{expense[1]}} </td></tr>
-                                <tr> <td> COMMODITY NAME : </td> <td>   {{expense[2]}} </td></tr>
-                                <tr> <td> DESCRIPTION : </td> <td>      {{expense[3]}} </td></tr>
-                                <tr> <td> PROVIDER : </td> <td>         {{expense[4]}} </td></tr>
-                                <tr> <td> QUANTITY </td> <td>           {{expense[5]}} </td></tr>
-                                <tr> <td> UNIT PRICE </td> <td>Ksh     {{expense[6]}}     </td></tr>
-                                <tr> <td> TRANSPORT COST </td> <td>     {{expense[7]}} </td></tr>
-                                <tr> <td> TRANSACTION COST </td> <td>   {{expense[8]}} </td></tr>
-                                <tr> <td> SUBTOTAL </td> <td>         Ksh  {{expense[9]}} </td></tr>
-                                <tr> <td> CASHIER NAME </td> <td> {{expense[10]}} </td> </tr>
+                                <tr> <td> COMMODITY TYPE : </td> <td>   {{expense[2]}} </td></tr>
+                                <tr> <td> COMMODITY NAME : </td> <td>   {{expense[3]}} </td></tr>
+                                <tr> <td> DESCRIPTION : </td> <td>      {{expense[4]}} </td></tr>
+                                <tr> <td> PROVIDER : </td> <td>         {{expense[5]}} </td></tr>
+                                <tr> <td> QUANTITY </td> <td>           {{expense[6]}} </td></tr>
+                                <tr> <td> UNIT PRICE </td> <td>Ksh     {{expense[7]}}     </td></tr>
+                                <tr> <td> TRANSPORT COST </td> <td>     {{expense[8]}} </td></tr>
+                                <tr> <td> TRANSACTION COST </td> <td>   {{expense[9]}} </td></tr>
+                                <tr> <td> SUBTOTAL </td> <td>         Ksh  {{expense[10]}} </td></tr>
+                                {%for cashier in cashiers%} {%if cashier[0]==expense[11]%}
+                                <tr> <td> CASHIER NAME </td> <td> {{cashier[1]}} </td> </tr>
+                                <tr> <td> CATEGORY </td> <td>  {{expense[13]}} </td></tr>
+                                {%endif%}{%endfor%}
                             
                         </table>
                     </form>
@@ -331,6 +334,7 @@
                     {%endfor%}</td>
                 </tr>
                 <tr> <td> TOTAL : </td> <td> KSH {{transaction[3]}}</td></tr>
+                <tr> <td> CATEGORY </td> <td>           {{b[8]}} </td></tr>
                 </table>
             </form>
         </div>
@@ -344,6 +348,7 @@
                  <h4>CASHIER ID : {{b[6]}} </h4>
                  <h4>DATE : {{b[7]}}</h4>
                  <h4> AMOUNT : {{b[2]}} </h4>
+                 <h4> CATEGORY : {{b[8]}} </h4>
             </form>
         </div>
     </div>
@@ -386,8 +391,8 @@
                 <table>
                 
                 <tr>
-                <td><label for="product"><input required type="radio" name="commodity_type" id="product">PRODUCT</label>
-                <label for="service"><input required type="radio" name="commodity_type" id="service">SERVICE</label></td>
+                <td><label for="product"><input value="product" required type="radio" name="commodity_type" id="product">PRODUCT</label>
+                <label for="service"><input value="service" required type="radio" name="commodity_type" id="service">SERVICE</label></td>
                 </tr>
                 <tr>
                 <td> <label for="commodity_name">COMMODITY NAME : </label> </td><td> <input type="text" name="commodity_name" id="commodity_name" required></td>
@@ -416,6 +421,10 @@
                     <td><label for="transport_cost">TRANSPORT COST</label></td>
                     <td><input oninput="sum_()"  value="0" type="number" name="transport_cost" id="transport_cost"></td>
                 </tr>
+                <tr>
+                    <td><label for="category_">CATEGORY</label></td>
+                    <td><input placeholder="Poultry/Crops" type="text" name="category" id="category_"></td>
+                </tr>
                 
                 </table>
                 <h2> <span>Available : {{available}}</span> <center> Ksh <span id="result" >0.00</span></center> </h2>
@@ -430,11 +439,17 @@
                         <td> <label for="Amount_to_Deposit">AMOUNT TO DEPOSIT </label> </td>
                         <td><input type="number" required placeholder="Ksh : " name="amount_to_deposit" id="Amount_to_Deposit"></td>
                     </tr>
+                    <tr>
+                        <td><label for="category__">CATEGORY</label></td>
+                        <td><input placeholder="Poultry/Crops" type="text" name="category" id="category__"></td>
+                    </tr>
                 </table>
                 <button   style="background:rgb(9, 255, 0);" value="deposit" name="submit" type="submit">Deposit</button>
             </form>
-                
-            <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+                <br><br>
+                <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+                <canvas id="myChart1" style="width:100%;max-width:600px"></canvas>
+
         </div>
         <span class="graph">
             {%for month in total_monthly_data%}
@@ -442,80 +457,16 @@
             <span style="display:none;" class="P_info">{{month[1]}}</span>
             <span style="display:none;" class="L_info">{{month[2]}}</span>
             {%endfor%}
+            {%for key,totals in monthly_category_totals.items() %}
+            <BR><span style="display:none;"  class="cat_info1">{{key[1]}}</span>
+            <BR><span style="display:none;"  class="month_info1">{{key[0]}},{{key[1]}}</span>
+            <BR><span style="display:none;"  class="P_info1">{{totals['profit']}}</span>
+            <BR><span style="display:none;"  class="L_info1">{{totals['loss']}}</span><BR>
+            {%endfor%}
         </span>
         
     </div>
-    <table>
-    <tr>
-        <th>DATE</th>
-        <th>NAME</th>
-        <th>ACTIVITY</th>
-    </tr>
-    <tr>
-        {%for log in user_logs %}
-        <td>{{log[6]}}</td>
-        <td>{%for cashier in cashiers%}
-            {%if cashier[0]==log[1] %}
-            {{cashier[1]}}
-            {%endif%}
-            {%endfor%}
-        </td>
-        
-        <td>
-            {%if log[5]=='ADD'%}
-            {%if log[2]>0 %}
-            RESTOCKED STOCK_ID:
-            {{log[2]}}
-            {%elif log[3] >0 %}
-            ADDED PRODUCT {{log[3]}}
-            {%elif log[4] >0 %}
-            ADDED MEMBER {{log[4]}}
-            {%else%}
-            h
-            {%endif%}
-            {%endif%}
-
-            {%if log[5]=='DELETE'%}
-            {%if log[2]>0 %}
-            DELETED STOCK {{log[2]}}
-            {%elif log[3] >0 %}
-            DELETED PRODUCT {{log[3]}}
-            {%elif log[4] >0 %}
-            DELETED MEMBER {{log[4]}}
-            {%else%}
-            h
-            {%endif%}
-            {%endif%}
-        </td>
-        {%endfor%}
-    </tr>
     
-    <tr> 
-        <td> 2023-01-01 12:03:12 </td> 
-        <td> GALGALLO ROBA </td>
-        <td> RESTOCKED 600 UNITS OF ROOM 1 CHICKEN </td>
-     </tr>
-     <tr> 
-        <td> 2023-01-01 12:03:12 </td> 
-        <td> GALGALLO ROBA </td>
-        <td> ADDED A NEW PRODUCT: SIX 2 </td>
-     </tr>
-     <tr> 
-        <td> 2023-01-01 12:03:12 </td> 
-        <td> GALGALLO ROBA </td>
-        <td> FIRED AHMEDNOOR IBRAHIM </td>
-     </tr>
-     <tr> 
-        <td> 2023-01-01 12:03:12 </td> 
-        <td> GALGALLO ROBA </td>
-        <td> RESTOCKED 600 UNITS OF ROOM 1 CHICKEN </td>
-     </tr>
-     <tr> 
-        <td> 2023-01-01 12:03:12 </td> 
-        <td> GALGALLO ROBA </td>
-        <td> ADDED A NEW PRODUCT: SIX 2 </td>
-     </tr>
-    </table>
     
 </body>
 
@@ -555,7 +506,47 @@ new Chart("myChart", {
     },
     title: {
       display: true,
-      text: "PROFIT-LOSS MONITOR"
+      text: "PROFIT-LOSS TOTAL"
+    }
+  }
+});
+//OTHER PROFIT LOSS MONITORS
+const xSource1=document.querySelectorAll('.month_info1');
+const yy1Source1 = document.querySelectorAll('.P_info1');
+const yy2source1=document.querySelectorAll('.L_info1');
+const xx1 = [];
+const yy11 = [];
+const yy21=[];
+for(let i=0;i<yy1Source1.length;i++){
+    xx1.push(xSource1[i].innerHTML);
+    yy11.push(yy1Source1[i].innerHTML);
+    yy21.push(yy2source1[i].innerHTML);
+};
+new Chart("myChart1", {
+  type: "bar",
+  data: {
+    labels: xx1,
+    datasets: [
+      {
+        label: "Profit",
+        backgroundColor: "blue",
+        borderColor: "blue",
+        data: yy11
+      },{
+        label:'loss',
+        backgroundColor : 'red',
+        data:yy21
+      }
+    ]
+  },
+  options: {
+    legend: {
+      display: true, // Change this to true if you want to display the legend
+      position: "bottom", // You can change the position if needed
+    },
+    title: {
+      display: true,
+      text: "PROFIT-LOSS PER CATEGORY"
     }
   }
 });
