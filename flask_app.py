@@ -8,12 +8,11 @@ load_dotenv()
 
 mydb=MySQL(app)
 
-app.config['MYSQL_HOST']=os.getenv('host2')
-app.config['MYSQL_USER']=os.getenv('user2')
-app.config['MYSQL_PASSWORD']=os.getenv('password2')
-app.config['MYSQL_DB']=os.getenv('database2')
-
-app.secret_key=os.getenv('secret_key')
+app.config['MYSQL_HOST']='localhost'
+app.config['MYSQL_USER']='root'
+app.config['MYSQL_PASSWORD']='GALGALLO10'
+app.config['MYSQL_DB']='database2'
+app.secret_key='secret_key'
 
 
 @app.route('/')
@@ -25,6 +24,7 @@ def home():
 @app.route('/sign_in',methods=["GET","POST"])
 def signin():
     if request.method=='POST':
+
         try:
             #check if the user has input something
             fullname = str(request.form["fullname"])
@@ -34,7 +34,7 @@ def signin():
             pass
         #check if it is in database
         try:
-            
+                
             cursor=mydb.connection.cursor()
             cursor.execute(f'SELECT TWO_NAMES FROM USERS WHERE USER_ID="{id_number}" AND TWO_NAMES="{fullname}" AND ACTIVE="ON"')
             identity=cursor.fetchall()[0][0]

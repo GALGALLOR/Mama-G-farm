@@ -1,3 +1,5 @@
+
+// Sell this app.config['MYSQL_HOST']='localhost' --> app.config['MYSQL_HOST']=os.dotenv('localhost') //
 STEP 1 : SET CATEGORIES
 
 STEP 2 : ADD PRODUCTS
