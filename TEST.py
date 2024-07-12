@@ -2,7 +2,7 @@ import MySQLdb
 
 # Establish connections to local and online databases
 local_conn = MySQLdb.connect(host='localhost', user='', passwd='', db='MAMA_G')
-online_conn = MySQLdb.connect(host='mamaG.mysql.pythonanywhere-services.com', user='mamaG', passwd='GALGALLO10_', db='mamaG$default')
+online_conn = MySQLdb.connect(host='', user='', passwd='', db='')
 
 # Retrieve table names from the local database
 cursor = local_conn.cursor()
