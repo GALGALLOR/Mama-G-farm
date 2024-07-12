@@ -9,10 +9,10 @@ load_dotenv()
 mydb=MySQL(app)
 
 app.config['MYSQL_HOST']='localhost'
-app.config['MYSQL_USER']='root'
-app.config['MYSQL_PASSWORD']='GALGALLO10'
+app.config['MYSQL_USER']=''
+app.config['MYSQL_PASSWORD']=''
 app.config['MYSQL_DB']='database2'
-app.secret_key='secret_key'
+app.secret_key=''
 
 
 @app.route('/')
